@@ -24,6 +24,7 @@ type IConfiguration interface {
 // Configuration is the concrete implementation
 type Configuration struct {
 	configurationProviders []IConfigurationProvider
+	decrypters             map[*IConfigurationProvider]IConfigurationDecrypter
 }
 
 // GetProviders returns the configured configuration providers
@@ -38,8 +39,8 @@ func (conf *Configuration) GetValue(section string) string {
 	for _, p := range conf.configurationProviders {
 		props := filterProperties(section, p)
 		if len(props) == 1 {
-			for _, value := range props {
-				result = value
+			for key, value := range props {
+				result = conf.getValue(key, value, p)
 				break
 			}
 		}
@@ -52,20 +53,35 @@ func (conf *Configuration) GetValue(section string) string {
 func (conf *Configuration) Bind(section string, value interface{}) {
 	for _, p := range conf.configurationProviders {
 		props := filterProperties(section, p)
-		bindProps(p.GetSeparator(), props, value)
+		conf.bindProps(p, props, value)
 	}
 }
 
-func bindProps(separator string, props map[string]string, value interface{}) {
+func (conf *Configuration) getValue(key string, value string, configurationProvider IConfigurationProvider) string {
+	if decrypter, ok := conf.decrypters[&configurationProvider]; ok {
+		decrypetValue, err := decrypter.Decrypt(value)
+
+		if err != nil {
+			log.Printf("Configuration:getValue error during the decryption of key '%v' with value '%v'. Configuration provider: '%T', Decrypter: '%T'", key, value, configurationProvider, decrypter)
+			return value
+		}
+
+		return decrypetValue
+	}
+
+	return value
+}
+
+func (conf *Configuration) bindProps(configurationProvider IConfigurationProvider, props map[string]string, value interface{}) {
 	reflectedType := reflect.ValueOf(value).Elem()
 
 	for key, value := range props {
-		parts := strings.Split(key, separator)
-		fillObject(reflectedType, value, parts...)
+		parts := strings.Split(key, configurationProvider.GetSeparator())
+		conf.fillObject(configurationProvider, reflectedType, value, parts...)
 	}
 }
 
-func fillObject(parent reflect.Value, value string, parts ...string) {
+func (conf *Configuration) fillObject(configurationProvider IConfigurationProvider, parent reflect.Value, value string, parts ...string) {
 	fieldName := parts[0]
 	nestedField := parent.FieldByName(fieldName)
 
@@ -75,9 +91,9 @@ func fillObject(parent reflect.Value, value string, parts ...string) {
 	}
 
 	if len(parts) == 1 { // property
-		fillField(nestedField, value)
+		fillField(nestedField, conf.getValue(fieldName, value, configurationProvider))
 	} else { // nested object
-		fillObject(nestedField, value, parts[1:]...)
+		conf.fillObject(configurationProvider, nestedField, value, parts[1:]...)
 	}
 }
 
