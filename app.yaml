@@ -1,5 +1,5 @@
 config:
   Obj1:
-    PropertyString: "Test"
+    PropertyString: "TestObj1"
     PropertyInt: 1
     PropertyBool: true

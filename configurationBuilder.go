@@ -1,7 +1,7 @@
 package confignet
 
 import (
-	providers "confignet/confignet/Providers"
+	providers "confignet/Providers"
 	"log"
 )
 
