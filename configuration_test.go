@@ -87,6 +87,15 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	validateSubObject(t, expected, subObjConf)
 }
 
+func TestChainedConfigurationProviders(t *testing.T) {
+	var confBuilder IConfigurationBuilder = &ConfigurationBuilder{}
+	var chained IConfigurationProvider = &SplittedSecretsConfigurationProvider{}
+	confBuilder.Add(chained)
+	conf := confBuilder.Build()
+
+	t.Log("First test", conf)
+}
+
 func validateSubObject(t *testing.T, expected subObj, result subObj) {
 	if result.PropertyBool != expected.PropertyBool {
 		t.Log("error should be", expected.PropertyBool, ", but got", result.PropertyBool)

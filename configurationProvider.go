@@ -6,3 +6,9 @@ type IConfigurationProvider interface {
 	GetData() map[string]string
 	GetSeparator() string
 }
+
+// IChaninedConfigurationProvider is configuration provider interface
+type IChaninedConfigurationProvider interface {
+	IConfigurationProvider
+	Add(source IConfigurationProvider)
+}
