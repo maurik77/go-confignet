@@ -1,7 +1,11 @@
 package confignet
 
 import (
+	"encoding/base64"
 	"log"
+	"strings"
+
+	"github.com/lafriks/go-shamir"
 	// "github.com/lafriks/go-shamir"
 )
 
@@ -19,13 +23,31 @@ func (conf *SplittedSecretsConfigurationProvider) Add(source IConfigurationProvi
 
 // Load configuration from environment variables
 func (conf *SplittedSecretsConfigurationProvider) Load() {
+	conf.data = make(map[string]string)
+	mapParts := make(map[string][][]byte)
+
 	for _, confProvider := range conf.configurationProviders {
 		confProvider.Load()
+
+		for key, value := range confProvider.GetData() {
+			decodedString, err := base64.StdEncoding.DecodeString(value)
+
+			if err != nil {
+				continue
+			}
+
+			internalKey := strings.ReplaceAll(key, confProvider.GetSeparator(), conf.GetSeparator())
+			mapParts[internalKey] = append(mapParts[internalKey], decodedString)
+		}
 	}
 
-	// TODO Retrieve all values with the same key (parts)
-	// use shamir to calculate the decrypted value
-	// value, err = shamir.Combine(parts...)
+	for key, parts := range mapParts {
+		decryptedBytes, err := shamir.Combine(parts...)
+
+		if err == nil {
+			conf.data[key] = string(decryptedBytes)
+		}
+	}
 }
 
 // GetData provides the loaded data

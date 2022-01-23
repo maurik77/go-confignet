@@ -43,11 +43,11 @@ func TestConfigurationProviders(t *testing.T) {
 		t.Fail()
 	}
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	ValidateSubObject(t, expected, myCfg.Obj1)
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected, subObjConf)
+	ValidateSubObject(t, expected, subObjConf)
 }
 
 func TestConfigurationProvidersWithEnvVars(t *testing.T) {
@@ -80,23 +80,14 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 		t.Fail()
 	}
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	ValidateSubObject(t, expected, myCfg.Obj1)
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected, subObjConf)
+	ValidateSubObject(t, expected, subObjConf)
 }
 
-func TestChainedConfigurationProviders(t *testing.T) {
-	var confBuilder IConfigurationBuilder = &ConfigurationBuilder{}
-	var chained IConfigurationProvider = &SplittedSecretsConfigurationProvider{}
-	confBuilder.Add(chained)
-	conf := confBuilder.Build()
-
-	t.Log("First test", conf)
-}
-
-func validateSubObject(t *testing.T, expected subObj, result subObj) {
+func ValidateSubObject(t *testing.T, expected subObj, result subObj) {
 	if result.PropertyBool != expected.PropertyBool {
 		t.Log("error should be", expected.PropertyBool, ", but got", result.PropertyBool)
 		t.Fail()
