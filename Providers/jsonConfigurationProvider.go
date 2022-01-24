@@ -9,6 +9,11 @@ import (
 	"os"
 )
 
+const (
+	// DefaultJSONFile = app.json
+	DefaultJSONFile = "app.json"
+)
+
 // JSONConfigurationProvider loads configuration from JSON file key-value pairs
 type JSONConfigurationProvider struct {
 	FilePath string

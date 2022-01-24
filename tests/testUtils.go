@@ -1,4 +1,4 @@
-package confignet
+package tests
 
 import (
 	"testing"

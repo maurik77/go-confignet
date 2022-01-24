@@ -1,4 +1,4 @@
-package confignet
+package extensions
 
 // IConfigurationProvider is configuration provider interface
 type IConfigurationProvider interface {

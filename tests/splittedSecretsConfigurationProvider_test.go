@@ -1,7 +1,9 @@
-package confignet
+package tests
 
 import (
-	providers "confignet/Providers"
+	"confignet"
+	extensions "confignet/extensions"
+	providers "confignet/providers"
 	"encoding/base64"
 	"fmt"
 	"testing"
@@ -23,10 +25,10 @@ func TestGenerateStringParts(t *testing.T) {
 
 func TestConfigShamir12(t *testing.T) {
 
-	var confBuilder IConfigurationBuilder = &ConfigurationBuilder{}
-	var chained IChainedConfigurationProvider = &SplittedSecretsConfigurationProvider{}
+	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+	var chained extensions.IChainedConfigurationProvider = &providers.SplittedSecretsConfigurationProvider{}
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "copy-shamir-1.yaml"})
-	chained.Add(&providers.YamlConfigurationProvider{FilePath: "copy-shamir-2.yaml"})
+	chained.Add(&providers.JSONConfigurationProvider{FilePath: "copy-shamir-2.json"})
 	confBuilder.Add(chained)
 	conf := confBuilder.Build()
 
@@ -37,13 +39,13 @@ func TestConfigShamir12(t *testing.T) {
 		PropertyString: "Encrytped splitted string",
 	}
 
-	ValidateSubObject(t, expected, myCfg.Obj1)
+	validateSubObject(t, expected, myCfg.Obj1)
 }
 
 func TestConfigShamir13(t *testing.T) {
 
-	var confBuilder IConfigurationBuilder = &ConfigurationBuilder{}
-	var chained IChainedConfigurationProvider = &SplittedSecretsConfigurationProvider{}
+	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+	var chained extensions.IChainedConfigurationProvider = &providers.SplittedSecretsConfigurationProvider{}
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "copy-shamir-1.yaml"})
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "copy-shamir-3.yaml"})
 	confBuilder.Add(chained)
@@ -56,14 +58,14 @@ func TestConfigShamir13(t *testing.T) {
 		PropertyString: "Encrytped splitted string",
 	}
 
-	ValidateSubObject(t, expected, myCfg.Obj1)
+	validateSubObject(t, expected, myCfg.Obj1)
 }
 
 func TestConfigShamir23(t *testing.T) {
 
-	var confBuilder IConfigurationBuilder = &ConfigurationBuilder{}
-	var chained IChainedConfigurationProvider = &SplittedSecretsConfigurationProvider{}
-	chained.Add(&providers.YamlConfigurationProvider{FilePath: "copy-shamir-2.yaml"})
+	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+	var chained extensions.IChainedConfigurationProvider = &providers.SplittedSecretsConfigurationProvider{}
+	chained.Add(&providers.JSONConfigurationProvider{FilePath: "copy-shamir-2.json"})
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "copy-shamir-3.yaml"})
 	confBuilder.Add(chained)
 	conf := confBuilder.Build()
@@ -75,5 +77,5 @@ func TestConfigShamir23(t *testing.T) {
 		PropertyString: "Encrytped splitted string",
 	}
 
-	ValidateSubObject(t, expected, myCfg.Obj1)
+	validateSubObject(t, expected, myCfg.Obj1)
 }

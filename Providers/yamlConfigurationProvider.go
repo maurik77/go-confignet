@@ -10,6 +10,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	// DefaultYAMLFile = app.json
+	DefaultYAMLFile = "app.yaml"
+)
+
 // YamlConfigurationProvider loads configuration from YAML file key-value pairs
 type YamlConfigurationProvider struct {
 	FilePath string

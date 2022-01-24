@@ -1,32 +1,33 @@
-package confignet
+package providers
 
 import (
 	"encoding/base64"
 	"log"
 	"strings"
 
+	extensions "confignet/extensions"
+
 	"github.com/lafriks/go-shamir"
-	// "github.com/lafriks/go-shamir"
 )
 
 // SplittedSecretsConfigurationProvider loads configuration from other configuration providers and decrypt the splitted values
 type SplittedSecretsConfigurationProvider struct {
 	data                   map[string]string
-	configurationProviders []IConfigurationProvider
+	configurationProviders []extensions.IConfigurationProvider
 }
 
 // Add adds the configuration provider to the inner collection
-func (conf *SplittedSecretsConfigurationProvider) Add(source IConfigurationProvider) {
-	conf.configurationProviders = append(conf.configurationProviders, source)
+func (provider *SplittedSecretsConfigurationProvider) Add(source extensions.IConfigurationProvider) {
+	provider.configurationProviders = append(provider.configurationProviders, source)
 	log.Printf("SecretSplittedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // Load configuration from environment variables
-func (conf *SplittedSecretsConfigurationProvider) Load() {
-	conf.data = make(map[string]string)
+func (provider *SplittedSecretsConfigurationProvider) Load() {
+	provider.data = make(map[string]string)
 	mapParts := make(map[string][][]byte)
 
-	for _, confProvider := range conf.configurationProviders {
+	for _, confProvider := range provider.configurationProviders {
 		confProvider.Load()
 
 		for key, value := range confProvider.GetData() {
@@ -36,7 +37,7 @@ func (conf *SplittedSecretsConfigurationProvider) Load() {
 				continue
 			}
 
-			internalKey := strings.ReplaceAll(key, confProvider.GetSeparator(), conf.GetSeparator())
+			internalKey := strings.ReplaceAll(key, confProvider.GetSeparator(), provider.GetSeparator())
 			mapParts[internalKey] = append(mapParts[internalKey], decodedString)
 		}
 	}
@@ -45,7 +46,7 @@ func (conf *SplittedSecretsConfigurationProvider) Load() {
 		decryptedBytes, err := shamir.Combine(parts...)
 
 		if err == nil {
-			conf.data[key] = string(decryptedBytes)
+			provider.data[key] = string(decryptedBytes)
 		}
 	}
 }

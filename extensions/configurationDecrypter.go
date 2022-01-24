@@ -1,4 +1,4 @@
-package confignet
+package extensions
 
 // IConfigurationDecrypter is configuration decrypt interface interface
 type IConfigurationDecrypter interface {

@@ -1,6 +1,7 @@
 package confignet
 
 import (
+	extensions "confignet/extensions"
 	"fmt"
 	"log"
 	"reflect"
@@ -14,21 +15,14 @@ const (
 	SectionSeparator string = "/"
 )
 
-// IConfiguration is the interface of the configuration
-type IConfiguration interface {
-	GetProviders() []IConfigurationProvider
-	Bind(section string, value interface{})
-	GetValue(section string) string
-}
-
 // Configuration is the concrete implementation
 type Configuration struct {
-	configurationProviders []IConfigurationProvider
-	decrypters             map[*IConfigurationProvider]IConfigurationDecrypter
+	configurationProviders []extensions.IConfigurationProvider
+	decrypters             map[*extensions.IConfigurationProvider]extensions.IConfigurationDecrypter
 }
 
 // GetProviders returns the configured configuration providers
-func (conf *Configuration) GetProviders() []IConfigurationProvider {
+func (conf *Configuration) GetProviders() []extensions.IConfigurationProvider {
 	return conf.configurationProviders
 }
 
@@ -57,7 +51,7 @@ func (conf *Configuration) Bind(section string, value interface{}) {
 	}
 }
 
-func (conf *Configuration) getValue(key string, value string, configurationProvider IConfigurationProvider) string {
+func (conf *Configuration) getValue(key string, value string, configurationProvider extensions.IConfigurationProvider) string {
 	if decrypter, ok := conf.decrypters[&configurationProvider]; ok {
 		decrypetValue, err := decrypter.Decrypt(value)
 
@@ -72,7 +66,7 @@ func (conf *Configuration) getValue(key string, value string, configurationProvi
 	return value
 }
 
-func (conf *Configuration) bindProps(configurationProvider IConfigurationProvider, props map[string]string, value interface{}) {
+func (conf *Configuration) bindProps(configurationProvider extensions.IConfigurationProvider, props map[string]string, value interface{}) {
 	reflectedType := reflect.ValueOf(value).Elem()
 
 	for key, value := range props {
@@ -81,7 +75,7 @@ func (conf *Configuration) bindProps(configurationProvider IConfigurationProvide
 	}
 }
 
-func (conf *Configuration) fillObject(configurationProvider IConfigurationProvider, parent reflect.Value, value string, parts ...string) {
+func (conf *Configuration) fillObject(configurationProvider extensions.IConfigurationProvider, parent reflect.Value, value string, parts ...string) {
 	fieldName := parts[0]
 	nestedField := parent.FieldByName(fieldName)
 
@@ -140,7 +134,7 @@ func fillField(field reflect.Value, value string) {
 	}
 }
 
-func filterProperties(section string, p IConfigurationProvider) map[string]string {
+func filterProperties(section string, p extensions.IConfigurationProvider) map[string]string {
 	result := map[string]string{}
 	properties := p.GetData()
 	separator := p.GetSeparator()
