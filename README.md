@@ -62,7 +62,76 @@ myCfg := MyConfig{}
 conf.Bind("config", &myCfg)
 ```
 
-## Configuration Providers
+## Configuration Provider
+
+A configuration provider is responsible for reading the configuration from a specific source. It must implement the following interface:
+
+```go
+// IConfigurationProvider is configuration provider interface
+type IConfigurationProvider interface {
+ Load()
+ GetData() map[string]string
+ GetSeparator() string
+}
+```
+
+### Load function
+
+"Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map containes the conifguration name, the value of the map the value of the configuration.
+
+Configuration keys:
+
+- Are case-sensitive. For example, ConnectionString and connectionstring are treated as different keys.
+- If a key and value is set in more than one configuration providers, the value from the last provider added is used.
+- Hierarchical configuration must be represented in flat way in the map. The key will be made concatenating all chained properties with a specific separator. The seperator is specific of every configuration provider.
+
+Configuration values:
+
+- Are strings.
+
+Let's take as example the configuration:
+
+```go
+type MyConfig struct {
+  Obj1 struct {
+    PropertyString string
+    PropertyInt    int
+    PropertyBool   bool
+    Time           time.Time
+    Obj2           struct {
+       PropertyInt int
+    }
+  }
+  PropertyString string
+  PropertyInt    int
+  PropertyBool   bool
+  Time           time.Time
+}
+```
+
+Let's assume that the configuration provider uses ":" as separator, the map will contain:
+
+| Key                       | Value        |
+| ------------------------- | ------------ |
+| **PropertyString**        | "text"       |
+| **PropertyInt**           | "3"          |
+| **PropertyBool**          | "true"       |
+| **Time**                  | "2022-01-01" |
+| **Obj1:PropertyString**   | "text2"      |
+| **Obj1:PropertyInt**      | "55"         |
+| **Obj1:PropertyBool**     | "false"      |
+| **Obj1:Time**             | "2022-05-01" |
+| **Obj1:Obj2:PropertyInt** | "33"         |
+
+### GetData function
+
+"GetData" function must return the map populated by the "Load" function
+
+### GetSeparator function
+
+"GetSeparator" function must return the separator used by the configuration provider.
+
+## Built-in Configuration Providers
 
 ### Json
 
