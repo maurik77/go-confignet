@@ -9,6 +9,7 @@ Configuration providers read configuration data from key-value pairs (map[string
 - [Environment Variables](#environment-variables)
 - [Command line arguments](#command-line-arguments)
 - [Azure Key Vault](#azure-key-vault)
+- [Splitted Secrets](#splitted-secrets)
 - Custom providers
 
 The usage of the module consists in few simlpe steps:
@@ -78,6 +79,7 @@ type IConfigurationProvider interface {
 ### Load function
 
 "Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map containes the conifguration name, the value of the map the value of the configuration.
+Usually the execution of the function should be safe, it means that should never throw an error. Yaml and Json configuration providers, for instance, write in the standard error stream the reason if they cannot find the file or if is not able to read it correctly.
 
 Configuration keys:
 
@@ -202,6 +204,51 @@ Map:
 | **config.Obj1.PropertyBool**   | "true"     |
 
 ### Environment variables
+
+EnvConfigurationProvider loads configuration from environment variables. It uses "\_\_" (double underscore) as separator for hierarchical configuration. It exposes the folowing properties that change the behavior of the provider.
+
+```go
+// EnvConfigurationProvider loads configuration from environment variables
+type EnvConfigurationProvider struct {
+  Prefix       string
+  RemovePrefix bool
+}
+```
+
+Properties:
+
+- Prefix (optional): if set only the environment variables starting with the Prefix value will be loaded. E.g.:
+  - Prefix value: "secrets"
+  - Environment Variables:
+    - secrets\_\_cred\_\_password=pwd123
+    - cred\_\_username=test1
+  - Map: only secrets\_\_cred\_\_password is loaded
+    - Key: secrets\_\_cred\_\_password
+    - Value: pwd123
+- RemovePrefix (optional): It is ignored if Prefix is not set. If set to true the environment variable will be added to the map removing from the key the prefix value and the first separator. E.g. using as example the previous settings:
+  - RemovePrefix: true
+  - Map: only secrets\_\_cred\_\_password is loaded
+    - Key: cred\_\_password
+    - Value: pwd123
+
+Example:
+
+```bash
+# Environment variables
+export config__PropertyInt8=45
+export config__Obj1__PropertyString=TestObj1
+export config__Obj1__PropertyInt=1
+export config__Obj1__PropertyBool=true
+```
+
+Map:
+
+| Map Key                              | Map Value  |
+| ------------------------------------ | ---------- |
+| **config\_\_PropertyInt8**           | "45"       |
+| **config\_\_Obj1\_\_PropertyString** | "TestObj1" |
+| **config\_\_Obj1\_\_PropertyInt**    | "1"        |
+| **config\_\_Obj1\_\_PropertyBool**   | "true"     |
 
 ### Command line arguments
 
