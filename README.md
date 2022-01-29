@@ -111,17 +111,17 @@ type MyConfig struct {
 
 Let's assume that the configuration provider uses ":" as separator, the map will contain:
 
-| Key                       | Value        |
-| ------------------------- | ------------ |
-| **PropertyString**        | "text"       |
-| **PropertyInt**           | "3"          |
-| **PropertyBool**          | "true"       |
-| **Time**                  | "2022-01-01" |
-| **Obj1:PropertyString**   | "text2"      |
-| **Obj1:PropertyInt**      | "55"         |
-| **Obj1:PropertyBool**     | "false"      |
-| **Obj1:Time**             | "2022-05-01" |
-| **Obj1:Obj2:PropertyInt** | "33"         |
+| OOP dotted notaion (myConfig struct) | Map Key                   | Map Value    |
+| ------------------------------------ | ------------------------- | ------------ |
+| myConfig.PropertyString              | **PropertyString**        | "text"       |
+| myConfig.PropertyInt                 | **PropertyInt**           | "3"          |
+| myConfig.PropertyBool                | **PropertyBool**          | "true"       |
+| myConfig.Time                        | **Time**                  | "2022-01-01" |
+| myConfig.Obj1.PropertyString         | **Obj1:PropertyString**   | "text2"      |
+| myConfig.Obj1.PropertyInt            | **Obj1:PropertyInt**      | "55"         |
+| myConfig.Obj1.PropertyBool           | **Obj1:PropertyBool**     | "false"      |
+| myConfig.Obj1.Time                   | **Obj1:Time**             | "2022-05-01" |
+| myConfig.Obj1.Obj2.PropertyInt       | **Obj1:Obj2:PropertyInt** | "33"         |
 
 ### GetData function
 
@@ -135,7 +135,71 @@ Let's assume that the configuration provider uses ":" as separator, the map will
 
 ### Json
 
+JSONConfigurationProvider loads configuration from JSON file. It uses "." (dot) as separator for hierarchical configuration. It exposes just one public property: the file path. If the path is not provided the default value "app.json" is used.
+
+```go
+// JSONConfigurationProvider loads configuration from JSON file key-value pairs
+type JSONConfigurationProvider struct {
+   FilePath string
+}
+```
+
+Example:
+
+```json
+{
+  "config": {
+    "PropertyInt8": 45,
+    "Obj1": {
+      "PropertyString": "TestObj1",
+      "PropertyInt": 1,
+      "PropertyBool": true,
+      "Time": "2022-01-01"
+    }
+  }
+}
+```
+
+Map:
+
+| Map Key                        | Map Value    |
+| ------------------------------ | ------------ |
+| **config.PropertyInt8**        | "45"         |
+| **config.Obj1.PropertyString** | "TestObj1"   |
+| **config.Obj1.PropertyInt**    | "1"          |
+| **config.Obj1.PropertyBool**   | "true"       |
+| **config.Obj1.Time**           | "2022-01-01" |
+
 ### Yaml
+
+YamlConfigurationProvider loads configuration from YAML file. It uses "." (dot) as separator for hierarchical configuration. It exposes just one public property: the file path. If the path is not provided the default value "app.yaml" is used.
+
+```go
+// YamlConfigurationProvider loads configuration from YAML file key-value pairs
+type YamlConfigurationProvider struct {
+  FilePath string
+}
+```
+
+Example:
+
+```yaml
+config:
+  PropertyInt8: 45
+  Obj1:
+    PropertyString: "TestObj1"
+    PropertyInt: 1
+    PropertyBool: true
+```
+
+Map:
+
+| Map Key                        | Map Value  |
+| ------------------------------ | ---------- |
+| **config.PropertyInt8**        | "45"       |
+| **config.Obj1.PropertyString** | "TestObj1" |
+| **config.Obj1.PropertyInt**    | "1"        |
+| **config.Obj1.PropertyBool**   | "true"     |
 
 ### Environment variables
 
