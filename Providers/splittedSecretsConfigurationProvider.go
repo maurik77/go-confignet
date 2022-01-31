@@ -19,7 +19,7 @@ type SplittedSecretsConfigurationProvider struct {
 // Add adds the configuration provider to the inner collection
 func (provider *SplittedSecretsConfigurationProvider) Add(source extensions.IConfigurationProvider) {
 	provider.configurationProviders = append(provider.configurationProviders, source)
-	log.Printf("SecretSplittedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
+	log.Printf("SplittedSecretsConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // Load configuration from environment variables
@@ -47,6 +47,8 @@ func (provider *SplittedSecretsConfigurationProvider) Load() {
 
 		if err == nil {
 			provider.data[key] = string(decryptedBytes)
+		} else {
+			log.Printf("SplittedSecretsConfigurationProvider:Unable to decryptkey '%v'. Error: %v", key, err)
 		}
 	}
 }
