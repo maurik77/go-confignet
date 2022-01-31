@@ -40,4 +40,5 @@ func init() {
 	Register(&providers.JSONConfigurationProviderSource{})
 	Register(&providers.YamlConfigurationProviderSource{})
 	Register(&providers.KeyvaultConfigurationProviderSource{})
+	Register(&providers.SplittedSecretsConfigurationProviderSource{})
 }

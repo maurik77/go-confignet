@@ -19,6 +19,35 @@
         {
             "Name": "cmdline",
             "Properties": {}
+        },
+        {
+            "Name": "keyvault",
+            "Properties": {}
+        }
+    ],
+    "ChainedProviders": [
+        {
+            "Name": "shamir",
+            "Providers": [
+                {
+                    "Name": "yaml",
+                    "Properties": {
+                        "filePath": "copy-shamir-1.yaml"
+                    }
+                },
+                {
+                    "Name": "json",
+                    "Properties": {
+                        "filePath": "copy-shamir-2.json"
+                    }
+                },
+                {
+                    "Name": "yaml",
+                    "Properties": {
+                        "filePath": "copy-shamir-3.json"
+                    }
+                }
+            ]
         }
     ]
 }
