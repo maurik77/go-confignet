@@ -23,9 +23,7 @@
         {
             "name": "keyvault",
             "properties": {}
-        }
-    ],
-    "chainedProviders": [
+        },
         {
             "name": "shamir",
             "providers": [

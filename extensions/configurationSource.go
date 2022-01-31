@@ -7,18 +7,13 @@ type IConfigurationSource interface {
 }
 
 type Settings struct {
-	Providers        []ProviderSettings        `yaml:"providers" json:"providers"`
-	ChainedProviders []ChainedProviderSettings `yaml:"chainedProviders" json:"chainedProviders"`
-}
-
-type ChainedProviderSettings struct {
-	ProviderSettings `yaml:",inline"`
-	Providers        []ProviderSettings `yaml:"providers" json:"providers"`
+	Providers []ProviderSettings `yaml:"providers" json:"providers"`
 }
 
 type ProviderSettings struct {
 	Name       string                 `yaml:"name" json:"name"`
 	Properties map[string]interface{} `yaml:"properties" json:"properties"`
+	Providers  []ProviderSettings     `yaml:"providers" json:"providers"`
 }
 
 func (providerSettings *ProviderSettings) GetPropertyValue(key string, defaultValue interface{}) interface{} {

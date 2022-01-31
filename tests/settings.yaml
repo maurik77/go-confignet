@@ -21,7 +21,6 @@ providers:
     #   clientID: [Client id]
     #   clientSecret: [Client secret]
     #   baseURL: [Base URL]
-chainedProviders:
   - name: shamir
     providers:
       - name: yaml

@@ -53,33 +53,20 @@ func (conf *ConfigurationBuilder) AddDefaultConfigurationProvidersWithBasePath(b
 // ConfigureConfigurationProvidersFromSettings adds the default configuration providers
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromSettings(settings extensions.Settings) {
 
-	configureConfigurationProvidersFromSettings(settings.Providers, func(provider extensions.IConfigurationProvider) {
+	configureConfigurationProvidersFromSettings(settings.Providers, func(providerSettings extensions.ProviderSettings, provider extensions.IConfigurationProvider) {
 		conf.Add(provider)
-	})
-
-	for _, chainedProviderSettings := range settings.ChainedProviders {
-		if configurationSource, ok := configurationSources[chainedProviderSettings.Name]; ok {
-
-			configurationProvider := configurationSource.NewConfigurationProvider(chainedProviderSettings.ProviderSettings)
-
-			if chainedConfigurationProvider, ok := configurationProvider.(extensions.IChainedConfigurationProvider); ok {
-				conf.Add(configurationProvider)
-				configureConfigurationProvidersFromSettings(chainedProviderSettings.Providers, func(provider extensions.IConfigurationProvider) {
-					chainedConfigurationProvider.Add(provider)
-				})
-			} else {
-				log.Printf("ConfigurationBuilder: the '%v' configuration provider doesn't implement IChainedConfigurationProvider interface", chainedProviderSettings.Name)
-			}
-		} else {
-			log.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", chainedProviderSettings.Name)
+		if chainedConfigurationProvider, ok := provider.(extensions.IChainedConfigurationProvider); ok {
+			configureConfigurationProvidersFromSettings(providerSettings.Providers, func(subProviderSettings extensions.ProviderSettings, subprovider extensions.IConfigurationProvider) {
+				chainedConfigurationProvider.Add(subprovider)
+			})
 		}
-	}
+	})
 }
 
-func configureConfigurationProvidersFromSettings(settings []extensions.ProviderSettings, add func(extensions.IConfigurationProvider)) {
+func configureConfigurationProvidersFromSettings(settings []extensions.ProviderSettings, add func(extensions.ProviderSettings, extensions.IConfigurationProvider)) {
 	for _, providerSettings := range settings {
 		if configurationSource, ok := configurationSources[providerSettings.Name]; ok {
-			add(configurationSource.NewConfigurationProvider(providerSettings))
+			add(providerSettings, configurationSource.NewConfigurationProvider(providerSettings))
 		} else {
 			log.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", providerSettings.Name)
 		}
@@ -104,10 +91,9 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProviders() {
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromJSONConfig(jsonPath string) {
 	settings := unmarshalSettingsFile(jsonPath, "settings.json", yaml.Unmarshal)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
-	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
-// ConfigureConfigurationProvidersFromJsonConfig adds the configuration providers reading from settings.yaml file
+// ConfigureConfigurationProvidersFromYamlConfig adds the configuration providers reading from settings.yaml file
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(yamlPath string) {
 	settings := unmarshalSettingsFile(yamlPath, "settings.yaml", yaml.Unmarshal)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)

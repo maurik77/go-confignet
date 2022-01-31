@@ -59,7 +59,7 @@ func validateBinding(config extensions.IConfiguration, t *testing.T) {
 	config.Bind("config", &myCfg)
 
 	expected := subObj{
-		PropertyString: "Encrytped splitted string",
+		PropertyString: "Encrypted splitted string",
 		PropertyInt:    1,
 		PropertyInt8:   2,
 		PropertyInt16:  3,
