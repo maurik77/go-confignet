@@ -1,8 +1,6 @@
 package providers
 
-import (
-	extensions "confignet/extensions"
-)
+import "github.com/Maurik77/go-confignet/extensions"
 
 // JSONConfigurationProviderSource is able to create JSONConfigurationProvider starting from the provider settings
 type JSONConfigurationProviderSource struct {

@@ -1,13 +1,14 @@
 package confignet
 
 import (
-	extensions "confignet/extensions"
 	"fmt"
 	"log"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Maurik77/go-confignet/extensions"
 )
 
 const (

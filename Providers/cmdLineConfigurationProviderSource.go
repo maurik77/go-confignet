@@ -1,8 +1,6 @@
 package providers
 
-import (
-	extensions "confignet/extensions"
-)
+import "github.com/Maurik77/go-confignet/extensions"
 
 // CmdLineConfigurationProviderSource is able to create CmdLineConfigurationProvider starting from the provider settings
 type CmdLineConfigurationProviderSource struct {

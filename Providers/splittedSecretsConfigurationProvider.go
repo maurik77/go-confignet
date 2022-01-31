@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	extensions "confignet/extensions"
+	"github.com/Maurik77/go-confignet/extensions"
 
 	"github.com/lafriks/go-shamir"
 )

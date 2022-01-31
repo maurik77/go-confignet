@@ -1,8 +1,6 @@
 package providers
 
-import (
-	extensions "confignet/extensions"
-)
+import "github.com/Maurik77/go-confignet/extensions"
 
 // YamlConfigurationProviderSource is able to create YamlConfigurationProvider starting from the provider settings
 type YamlConfigurationProviderSource struct {

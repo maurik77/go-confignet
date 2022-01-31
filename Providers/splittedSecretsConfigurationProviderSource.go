@@ -1,8 +1,6 @@
 package providers
 
-import (
-	extensions "confignet/extensions"
-)
+import "github.com/Maurik77/go-confignet/extensions"
 
 // SplittedSecretsConfigurationProviderSource is able to create SplittedSecretsConfigurationProvider starting from the provider settings
 type SplittedSecretsConfigurationProviderSource struct {

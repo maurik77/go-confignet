@@ -1,9 +1,10 @@
 package confignet
 
 import (
-	extensions "confignet/extensions"
-	providers "confignet/providers"
 	"sort"
+
+	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/Maurik77/go-confignet/providers"
 )
 
 var (

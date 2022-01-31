@@ -1,13 +1,14 @@
 package confignet
 
 import (
-	extensions "confignet/extensions"
-	providers "confignet/providers"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/Maurik77/go-confignet/providers"
 
 	"gopkg.in/yaml.v2"
 )

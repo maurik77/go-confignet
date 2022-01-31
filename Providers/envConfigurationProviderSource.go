@@ -1,8 +1,6 @@
 package providers
 
-import (
-	extensions "confignet/extensions"
-)
+import "github.com/Maurik77/go-confignet/extensions"
 
 // EnvConfigurationProviderSource is able to create EnvConfigurationProvider starting from the provider settings
 type EnvConfigurationProviderSource struct {
