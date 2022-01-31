@@ -1,0 +1,24 @@
+{
+    "Providers": [
+        {
+            "Name": "json",
+            "Properties": {
+                "filePath": "app.json"
+            }
+        },
+        {
+            "Name": "yaml",
+            "Properties": {
+                "filePath": "app.yaml"
+            }
+        },
+        {
+            "Name": "env",
+            "Properties": {}
+        },
+        {
+            "Name": "cmdline",
+            "Properties": {}
+        }
+    ]
+}
