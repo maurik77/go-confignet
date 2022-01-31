@@ -14,7 +14,7 @@ func (providerSource *JSONConfigurationProviderSource) NewConfigurationProvider(
 		panic("CmdLineConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
 	}
 
-	filePath := settings.Properties["filePath"].(string)
+	filePath := settings.GetPropertyValue("filePath", "").(string)
 
 	return &JSONConfigurationProvider{
 		FilePath: filePath,

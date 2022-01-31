@@ -14,3 +14,11 @@ type ProviderSettings struct {
 	Name       string
 	Properties map[string]interface{}
 }
+
+func (providerSettings *ProviderSettings) GetPropertyValue(key string, defaultValue interface{}) interface{} {
+	if value, ok := providerSettings.Properties[key]; ok {
+		return value
+	} else {
+		return defaultValue
+	}
+}

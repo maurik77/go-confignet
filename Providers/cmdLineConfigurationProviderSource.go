@@ -14,8 +14,8 @@ func (providerSource *CmdLineConfigurationProviderSource) NewConfigurationProvid
 		panic("CmdLineConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
 	}
 
-	prefix := settings.Properties["prefix"].(string)
-	removePrefix := settings.Properties["removePrefix"].(bool)
+	prefix := settings.GetPropertyValue("prefix", "").(string)
+	removePrefix := settings.GetPropertyValue("removePrefix", false).(bool)
 
 	//TODO KeyMapper
 	return &CmdLineConfigurationProvider{

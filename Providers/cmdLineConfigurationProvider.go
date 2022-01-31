@@ -29,9 +29,8 @@ func (provider *CmdLineConfigurationProvider) Load() {
 		}
 
 		if provider.KeyMapper == nil {
-			// two times to remove the prefix "-" if the argument is -arg or --arg
-			key = strings.TrimPrefix(key, "-")
-			key = strings.TrimPrefix(key, "-")
+			// Remove the prefix "-" if the argument is -arg or --arg
+			key = strings.TrimLeft(key, "-")
 		} else {
 			key = provider.KeyMapper(key)
 		}

@@ -14,12 +14,12 @@ func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvi
 		panic("CmdLineConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
 	}
 
-	prefix := settings.Properties["prefix"].(string)
-	removePrefix := settings.Properties["removePrefix"].(bool)
-	tenantID := settings.Properties["tenantID"].(string)
-	clientID := settings.Properties["clientID"].(string)
-	clientSecret := settings.Properties["clientSecret"].(string)
-	baseURL := settings.Properties["baseURL"].(string)
+	prefix := settings.GetPropertyValue("prefix", "").(string)
+	removePrefix := settings.GetPropertyValue("removePrefix", false).(bool)
+	tenantID := settings.GetPropertyValue("tenantID", "").(string)
+	clientID := settings.GetPropertyValue("clientID", "").(string)
+	clientSecret := settings.GetPropertyValue("clientSecret", "").(string)
+	baseURL := settings.GetPropertyValue("baseURL", "").(string)
 
 	return &KeyvaultConfigurationProvider{
 		Prefix:       prefix,

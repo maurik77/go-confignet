@@ -3,11 +3,15 @@ package tests
 import (
 	"confignet"
 	"fmt"
+	"strings"
 	"testing"
 )
 
 func TestConfigurationProviderSources(t *testing.T) {
 	configSources := confignet.ConfigurationSources()
+
+	test := strings.TrimLeft("---5", "-")
+	fmt.Println(test)
 
 	expectedValues := []string{
 		"cmdline",
