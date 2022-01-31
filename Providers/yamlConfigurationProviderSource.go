@@ -4,11 +4,11 @@ import (
 	extensions "confignet/extensions"
 )
 
-// YamlConfigurationProviderSource
+// YamlConfigurationProviderSource is able to create YamlConfigurationProvider starting from the provider settings
 type YamlConfigurationProviderSource struct {
 }
 
-// Load configuration from commandline arguments
+// NewConfigurationProvider creates YamlConfigurationProvider starting from the provider settings
 func (providerSource *YamlConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
 		panic("YamlConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
@@ -21,7 +21,7 @@ func (providerSource *YamlConfigurationProviderSource) NewConfigurationProvider(
 	}
 }
 
-// GetData provides the loaded data
+// GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *YamlConfigurationProviderSource) GetUniqueIdentifier() string {
 	return "yaml"
 }

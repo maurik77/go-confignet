@@ -13,7 +13,9 @@ import (
 )
 
 const (
+	// EnvConfigFileType is the environment variable containing the type of the settings file: yaml or json
 	EnvConfigFileType = "confignet_configfiletype"
+	// EnvConfigFilePath is the environment variable containing the file path
 	EnvConfigFilePath = "confignet_configfilepath"
 )
 

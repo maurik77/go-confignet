@@ -4,11 +4,11 @@ import (
 	extensions "confignet/extensions"
 )
 
-// CmdLineConfigurationProviderSource
+// CmdLineConfigurationProviderSource is able to create CmdLineConfigurationProvider starting from the provider settings
 type CmdLineConfigurationProviderSource struct {
 }
 
-// Load configuration from commandline arguments
+// NewConfigurationProvider creates CmdLineConfigurationProvider starting from the provider settings
 func (providerSource *CmdLineConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
 		panic("CmdLineConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
@@ -24,7 +24,7 @@ func (providerSource *CmdLineConfigurationProviderSource) NewConfigurationProvid
 	}
 }
 
-// GetData provides the loaded data
+// GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *CmdLineConfigurationProviderSource) GetUniqueIdentifier() string {
 	return "cmdline"
 }

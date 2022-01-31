@@ -4,11 +4,11 @@ import (
 	extensions "confignet/extensions"
 )
 
-// KeyvaultConfigurationProviderSource
+// KeyvaultConfigurationProviderSource is able to create KeyvaultConfigurationProvider starting from the provider settings
 type KeyvaultConfigurationProviderSource struct {
 }
 
-// Load configuration from commandline arguments
+// NewConfigurationProvider creates KeyvaultConfigurationProvider starting from the provider settings
 func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
 		panic("KeyvaultConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
@@ -31,7 +31,7 @@ func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvi
 	}
 }
 
-// GetData provides the loaded data
+// GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *KeyvaultConfigurationProviderSource) GetUniqueIdentifier() string {
 	return "keyvault"
 }

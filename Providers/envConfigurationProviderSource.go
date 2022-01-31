@@ -4,11 +4,11 @@ import (
 	extensions "confignet/extensions"
 )
 
-// EnvConfigurationProviderSource
+// EnvConfigurationProviderSource is able to create EnvConfigurationProvider starting from the provider settings
 type EnvConfigurationProviderSource struct {
 }
 
-// Load configuration from commandline arguments
+// NewConfigurationProvider creates EnvConfigurationProvider starting from the provider settings
 func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
 		panic("EnvConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
@@ -23,7 +23,7 @@ func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(s
 	}
 }
 
-// GetData provides the loaded data
+// GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *EnvConfigurationProviderSource) GetUniqueIdentifier() string {
 	return "env"
 }

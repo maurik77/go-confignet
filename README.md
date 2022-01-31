@@ -1,6 +1,6 @@
 # go-confignet
 
-The module is freely ispired by asp.net Configuration framework.
+The module is freely inspired by asp.net Configuration framework.
 The responsibility for reading the configuration rests with one or more configuration providers.
 Configuration providers read configuration data from key-value pairs (map[string]string) using a variety of configuration sources:
 
@@ -113,7 +113,7 @@ type MyConfig struct {
 
 Let's assume that the configuration provider uses ":" as separator, the map will contain:
 
-| OOP dotted notaion (myConfig struct) | Map Key                   | Map Value    |
+| OOP dotted notation (myConfig struct) | Map Key                   | Map Value    |
 | ------------------------------------ | ------------------------- | ------------ |
 | myConfig.PropertyString              | **PropertyString**        | "text"       |
 | myConfig.PropertyInt                 | **PropertyInt**           | "3"          |

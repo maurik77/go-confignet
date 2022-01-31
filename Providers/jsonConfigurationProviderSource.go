@@ -4,11 +4,11 @@ import (
 	extensions "confignet/extensions"
 )
 
-// JSONConfigurationProviderSource
+// JSONConfigurationProviderSource is able to create JSONConfigurationProvider starting from the provider settings
 type JSONConfigurationProviderSource struct {
 }
 
-// Load configuration from commandline arguments
+// NewConfigurationProvider creates JSONConfigurationProvider starting from the provider settings
 func (providerSource *JSONConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
 		panic("JSONConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
@@ -21,7 +21,7 @@ func (providerSource *JSONConfigurationProviderSource) NewConfigurationProvider(
 	}
 }
 
-// GetData provides the loaded data
+// GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *JSONConfigurationProviderSource) GetUniqueIdentifier() string {
 	return "json"
 }

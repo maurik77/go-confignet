@@ -10,6 +10,7 @@ var (
 	configurationSources = make(map[string]extensions.IConfigurationSource)
 )
 
+//Register registers a new configuration source
 func Register(configurationSource extensions.IConfigurationSource) {
 	if configurationSource == nil {
 		panic("confignet: Register configuration source is nil")
@@ -24,7 +25,7 @@ func Register(configurationSource extensions.IConfigurationSource) {
 	configurationSources[uniqueIdentifier] = configurationSource
 }
 
-// Drivers returns a sorted list of the names of the registered configuration sources.
+// ConfigurationSources returns a sorted list of the names of the registered configuration sources.
 func ConfigurationSources() []string {
 	list := make([]string, 0, len(configurationSources))
 	for name := range configurationSources {
