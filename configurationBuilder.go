@@ -3,7 +3,6 @@ package confignet
 import (
 	extensions "confignet/extensions"
 	providers "confignet/providers"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +10,11 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	EnvConfigFileType = "confignet_configfiletype"
+	EnvConfigFilePath = "confignet_configfilepath"
 )
 
 // ConfigurationBuilder is the concrete implementation
@@ -84,61 +88,28 @@ func configureConfigurationProvidersFromSettings(settings []extensions.ProviderS
 
 // ConfigureConfigurationProviders adds the configuration providers reading from settings.json or settings.yaml file
 func (conf *ConfigurationBuilder) ConfigureConfigurationProviders() {
-	conf.ConfigureConfigurationProvidersFromJSONConfig("")
-	conf.ConfigureConfigurationProvidersFromYamlConfig("")
+	var configFileType = os.Getenv(EnvConfigFileType)
+	var configFilePath = os.Getenv(EnvConfigFilePath)
+
+	switch configFileType {
+	case "JSON":
+	case "json":
+		conf.ConfigureConfigurationProvidersFromJSONConfig(configFilePath)
+	default:
+		conf.ConfigureConfigurationProvidersFromYamlConfig(configFilePath)
+	}
 }
 
 // ConfigureConfigurationProvidersFromJSONConfig adds the configuration providers reading from settings.json file
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromJSONConfig(jsonPath string) {
-	if jsonPath == "" {
-		jsonPath = "settings.json"
-	}
-
-	if _, err := os.Stat(jsonPath); errors.Is(err, os.ErrNotExist) {
-		log.Printf("ConfigurationBuilder:File not found %v", jsonPath)
-		return
-	}
-
-	content, err := ioutil.ReadFile(jsonPath)
-
-	if err != nil {
-		log.Printf("ConfigurationBuilder:Error when opening file '%v': '%v'", jsonPath, err)
-		return
-	}
-
-	var settings extensions.Settings
-	err = json.Unmarshal(content, &settings)
-	if err != nil {
-		log.Println("ConfigurationBuilder:Error during Unmarshal(): ", err)
-	}
-
+	settings := unmarshalSettingsFile(jsonPath, "settings.json", yaml.Unmarshal)
+	conf.ConfigureConfigurationProvidersFromSettings(settings)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
 // ConfigureConfigurationProvidersFromJsonConfig adds the configuration providers reading from settings.yaml file
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(yamlPath string) {
-	if yamlPath == "" {
-		yamlPath = "settings.yaml"
-	}
-
-	if _, err := os.Stat(yamlPath); errors.Is(err, os.ErrNotExist) {
-		log.Printf("ConfigurationBuilder:File not found %v", yamlPath)
-		return
-	}
-
-	content, err := ioutil.ReadFile(yamlPath)
-
-	if err != nil {
-		log.Printf("ConfigurationBuilder:Error when opening file '%v': '%v'", yamlPath, err)
-		return
-	}
-
-	var settings extensions.Settings
-	err = yaml.Unmarshal(content, &settings)
-	if err != nil {
-		log.Println("ConfigurationBuilder:Error during Unmarshal(): ", err)
-	}
-
+	settings := unmarshalSettingsFile(yamlPath, "settings.yaml", yaml.Unmarshal)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
@@ -154,4 +125,30 @@ func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
 	}
 
 	return &result
+}
+
+func unmarshalSettingsFile(path string, defaultPath string, unmarshal func(in []byte, out interface{}) (err error)) extensions.Settings {
+	if path == "" {
+		path = "settings.yaml"
+	}
+
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		log.Printf("ConfigurationBuilder:File not found %v", path)
+		return extensions.Settings{}
+	}
+
+	content, err := ioutil.ReadFile(path)
+
+	if err != nil {
+		log.Printf("ConfigurationBuilder:Error when opening file '%v': '%v'", path, err)
+		return extensions.Settings{}
+	}
+
+	var settings extensions.Settings
+	err = unmarshal(content, &settings)
+	if err != nil {
+		log.Println("ConfigurationBuilder:Error during Unmarshal(): ", err)
+	}
+
+	return settings
 }

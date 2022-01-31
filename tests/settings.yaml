@@ -6,11 +6,21 @@ providers:
     properties:
       filePath: app.yaml
   - name: env
-    # properties: {}
+    # properties:
+    #   prefix: prefixValue
+    #   removePrefix: true
   - name: cmdline
-    # properties: {}
+    # properties:
+    #   prefix: prefixValue
+    #   removePrefix: true
   - name: keyvault
-    # properties: {}
+    # properties:
+    #   prefix: prefixValue
+    #   removePrefix: true
+    #   tenantID: [Tenant id]
+    #   clientID: [Client id]
+    #   clientSecret: [Client secret]
+    #   baseURL: [Base URL]
 chainedProviders:
   - name: shamir
     providers:

@@ -3,9 +3,35 @@ package tests
 import (
 	"confignet"
 	extensions "confignet/extensions"
+	"os"
 
 	"testing"
 )
+
+func TestConfigureConfigurationProvidersFromEnvVarJson(t *testing.T) {
+	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+
+	os.Setenv(confignet.EnvConfigFileType, "json")
+	os.Setenv(confignet.EnvConfigFilePath, "settings.json")
+
+	confBuilder.ConfigureConfigurationProviders()
+	config := confBuilder.Build()
+
+	validateBinding(config, t)
+}
+
+func TestConfigureConfigurationProvidersFromEnvVarYaml(t *testing.T) {
+	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+
+	os.Setenv(confignet.EnvConfigFileType, "yaml")
+	os.Setenv(confignet.EnvConfigFilePath, "settings.yaml")
+
+	confBuilder.ConfigureConfigurationProviders()
+
+	config := confBuilder.Build()
+
+	validateBinding(config, t)
+}
 
 func TestConfigureConfigurationProvidersFromJSONConfig(t *testing.T) {
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
