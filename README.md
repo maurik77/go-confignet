@@ -1,6 +1,6 @@
 # go-confignet
 
-The module is freely ispired by asp.net Configuration framework.
+The module is freely inspired by asp.net Configuration framework.
 The responsibility for reading the configuration rests with one or more configuration providers.
 Configuration providers read configuration data from key-value pairs (map[string]string) using a variety of configuration sources:
 
@@ -12,7 +12,7 @@ Configuration providers read configuration data from key-value pairs (map[string
 - [Splitted Secrets](#splitted-secrets)
 - Custom providers
 
-The usage of the module consists in few simlpe steps:
+The usage of the module consists in few simple steps:
 
 - Create the struct which represents the configuration
 - Create a configuration builder
@@ -78,14 +78,14 @@ type IConfigurationProvider interface {
 
 ### Load function
 
-"Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map containes the conifguration name, the value of the map the value of the configuration.
+"Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map contains the configuration name, the value of the map the value of the configuration.
 Usually the execution of the function should be safe, it means that should never throw an error. Yaml and Json configuration providers, for instance, write in the standard error stream the reason if they cannot find the file or if is not able to read it correctly.
 
 Configuration keys:
 
 - Are case-sensitive. For example, ConnectionString and connectionstring are treated as different keys.
 - If a key and value is set in more than one configuration providers, the value from the last provider added is used.
-- Hierarchical configuration must be represented in flat way in the map. The key will be made concatenating all chained properties with a specific separator. The seperator is specific of every configuration provider.
+- Hierarchical configuration must be represented in flat way in the map. The key will be made concatenating all chained properties with a specific separator. The separator is specific of every configuration provider.
 
 Configuration values:
 
@@ -113,7 +113,7 @@ type MyConfig struct {
 
 Let's assume that the configuration provider uses ":" as separator, the map will contain:
 
-| OOP dotted notaion (myConfig struct) | Map Key                   | Map Value    |
+| OOP dotted notation (myConfig struct) | Map Key                   | Map Value    |
 | ------------------------------------ | ------------------------- | ------------ |
 | myConfig.PropertyString              | **PropertyString**        | "text"       |
 | myConfig.PropertyInt                 | **PropertyInt**           | "3"          |
@@ -205,7 +205,7 @@ Map:
 
 ### Environment variables
 
-EnvConfigurationProvider loads configuration from environment variables. It uses "\_\_" (double underscore) as separator for hierarchical configuration. It exposes the folowing properties that change the behavior of the provider.
+EnvConfigurationProvider loads configuration from environment variables. It uses "\_\_" (double underscore) as separator for hierarchical configuration. It exposes the following properties that change the behavior of the provider.
 
 ```go
 // EnvConfigurationProvider loads configuration from environment variables

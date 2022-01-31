@@ -1,0 +1,34 @@
+providers:
+  - name: json
+    properties:
+      filePath: app.json
+  - name: yaml
+    properties:
+      filePath: app.yaml
+  - name: env
+    # properties:
+    #   prefix: prefixValue
+    #   removePrefix: true
+  - name: cmdline
+    # properties:
+    #   prefix: prefixValue
+    #   removePrefix: true
+  - name: keyvault
+    # properties:
+    #   prefix: prefixValue
+    #   removePrefix: true
+    #   tenantID: [Tenant id]
+    #   clientID: [Client id]
+    #   clientSecret: [Client secret]
+    #   baseURL: [Base URL]
+  - name: shamir
+    providers:
+      - name: yaml
+        properties:
+          filePath: copy-shamir-1.yaml
+      - name: json
+        properties:
+          filePath: copy-shamir-2.json
+      - name: yaml
+        properties:
+          filePath: copy-shamir-3.json
