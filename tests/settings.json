@@ -1,49 +1,49 @@
 {
-    "Providers": [
+    "providers": [
         {
-            "Name": "json",
-            "Properties": {
+            "name": "json",
+            "properties": {
                 "filePath": "app.json"
             }
         },
         {
-            "Name": "yaml",
-            "Properties": {
+            "name": "yaml",
+            "properties": {
                 "filePath": "app.yaml"
             }
         },
         {
-            "Name": "env",
-            "Properties": {}
+            "name": "env",
+            "properties": {}
         },
         {
-            "Name": "cmdline",
-            "Properties": {}
+            "name": "cmdline",
+            "properties": {}
         },
         {
-            "Name": "keyvault",
-            "Properties": {}
+            "name": "keyvault",
+            "properties": {}
         }
     ],
-    "ChainedProviders": [
+    "chainedProviders": [
         {
-            "Name": "shamir",
-            "Providers": [
+            "name": "shamir",
+            "providers": [
                 {
-                    "Name": "yaml",
-                    "Properties": {
+                    "name": "yaml",
+                    "properties": {
                         "filePath": "copy-shamir-1.yaml"
                     }
                 },
                 {
-                    "Name": "json",
-                    "Properties": {
+                    "name": "json",
+                    "properties": {
                         "filePath": "copy-shamir-2.json"
                     }
                 },
                 {
-                    "Name": "yaml",
-                    "Properties": {
+                    "name": "yaml",
+                    "properties": {
                         "filePath": "copy-shamir-3.json"
                     }
                 }

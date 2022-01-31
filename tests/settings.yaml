@@ -1,0 +1,25 @@
+providers:
+  - name: json
+    properties:
+      filePath: app.json
+  - name: yaml
+    properties:
+      filePath: app.yaml
+  - name: env
+    # properties: {}
+  - name: cmdline
+    # properties: {}
+  - name: keyvault
+    # properties: {}
+chainedProviders:
+  - name: shamir
+    providers:
+      - name: yaml
+        properties:
+          filePath: copy-shamir-1.yaml
+      - name: json
+        properties:
+          filePath: copy-shamir-2.json
+      - name: yaml
+        properties:
+          filePath: copy-shamir-3.json

@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 // ConfigurationBuilder is the concrete implementation
@@ -62,7 +64,7 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromSettings(se
 					chainedConfigurationProvider.Add(provider)
 				})
 			} else {
-				log.Printf("ConfigurationBuilder: the '%v'", chainedProviderSettings.Name)
+				log.Printf("ConfigurationBuilder: the '%v' configuration provider doesn't implement IChainedConfigurationProvider interface", chainedProviderSettings.Name)
 			}
 		} else {
 			log.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", chainedProviderSettings.Name)
@@ -114,25 +116,25 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromJSONConfig(
 }
 
 // ConfigureConfigurationProvidersFromJsonConfig adds the configuration providers reading from settings.yaml file
-func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(jsonPath string) {
-	if jsonPath == "" {
-		jsonPath = "settings.yaml"
+func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(yamlPath string) {
+	if yamlPath == "" {
+		yamlPath = "settings.yaml"
 	}
 
-	if _, err := os.Stat(jsonPath); errors.Is(err, os.ErrNotExist) {
-		log.Printf("ConfigurationBuilder:File not found %v", jsonPath)
+	if _, err := os.Stat(yamlPath); errors.Is(err, os.ErrNotExist) {
+		log.Printf("ConfigurationBuilder:File not found %v", yamlPath)
 		return
 	}
 
-	content, err := ioutil.ReadFile(jsonPath)
+	content, err := ioutil.ReadFile(yamlPath)
 
 	if err != nil {
-		log.Printf("ConfigurationBuilder:Error when opening file '%v': '%v'", jsonPath, err)
+		log.Printf("ConfigurationBuilder:Error when opening file '%v': '%v'", yamlPath, err)
 		return
 	}
 
 	var settings extensions.Settings
-	err = json.Unmarshal(content, &settings)
+	err = yaml.Unmarshal(content, &settings)
 	if err != nil {
 		log.Println("ConfigurationBuilder:Error during Unmarshal(): ", err)
 	}

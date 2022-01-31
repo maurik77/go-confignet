@@ -9,6 +9,6 @@ type IConfigurationBuilder interface {
 	AddDefaultConfigurationProvidersWithBasePath(basePath string)
 	ConfigureConfigurationProviders()
 	ConfigureConfigurationProvidersFromJSONConfig(jsonPath string)
-	ConfigureConfigurationProvidersFromYamlConfig(jsonPath string)
+	ConfigureConfigurationProvidersFromYamlConfig(yamlPath string)
 	ConfigureConfigurationProvidersFromSettings(settings Settings)
 }
