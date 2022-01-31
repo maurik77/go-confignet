@@ -3,7 +3,6 @@ package tests
 import (
 	"confignet"
 	extensions "confignet/extensions"
-	"os"
 	"testing"
 	"time"
 )
@@ -39,10 +38,10 @@ func TestConfigurationProviders(t *testing.T) {
 
 func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 
-	os.Setenv("config__Obj1__PropertyString", "envTest")
-	os.Setenv("config__Obj1__PropertyInt64", "2377777")
-	os.Setenv("config__Obj1__PropertyInt16", "23")
-	os.Setenv("config__Obj1__Time", "2022-01-19")
+	t.Setenv("config__Obj1__PropertyString", "envTest")
+	t.Setenv("config__Obj1__PropertyInt64", "2377777")
+	t.Setenv("config__Obj1__PropertyInt16", "23")
+	t.Setenv("config__Obj1__Time", "2022-01-19")
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 	confBuilder.AddDefaultConfigurationProviders()
