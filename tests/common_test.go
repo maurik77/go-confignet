@@ -1,10 +1,11 @@
 package tests
 
 import (
-	"confignet"
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/Maurik77/go-confignet"
 )
 
 func TestConfigurationProviderSources(t *testing.T) {

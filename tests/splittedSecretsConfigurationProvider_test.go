@@ -1,12 +1,13 @@
 package tests
 
 import (
-	"confignet"
-	extensions "confignet/extensions"
-	providers "confignet/providers"
 	"encoding/base64"
 	"fmt"
 	"testing"
+
+	"github.com/Maurik77/go-confignet"
+	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/Maurik77/go-confignet/providers"
 
 	"github.com/lafriks/go-shamir"
 )

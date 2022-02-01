@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"confignet"
-	extensions "confignet/extensions"
+	"github.com/Maurik77/go-confignet"
+	"github.com/Maurik77/go-confignet/extensions"
 
 	"testing"
 )
