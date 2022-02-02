@@ -118,7 +118,7 @@ func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
 
 func unmarshalSettingsFile(path string, defaultPath string, unmarshal func(in []byte, out interface{}) (err error)) extensions.Settings {
 	if path == "" {
-		path = "settings.yaml"
+		path = defaultPath
 	}
 
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
