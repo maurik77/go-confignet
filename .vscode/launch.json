@@ -5,26 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Go",
+            "name": "Cli aescrypt",
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": ".",
+            "program": "cli/aescrypt.go",
             "args": [
-                "-config-Obj1-PropertyInt8=4",
-                "--config-Obj1-PropertyBool",
+                "-config=../tests/app.json",
+                "-configType=json",
+                "-secret=superSecret",
+                "-dest=app-encrypted.json",
             ],
-            "env": {
-                "config__Obj1__PropertyString": "envTest",
-                "config__Obj1__PropertyInt64": "2377777",
-                "config__Obj1__PropertyInt16": "23",
-                "config__Obj1__Time": "2022-01-19",
-                // "CONFIG_PATH": "./../..",
-                "AZURE_TENANT_ID": "",
-                "AZURE_CLIENT_ID": "",
-                "AZURE_CLIENT_SECRET": "",
-                "AZURE_KEYVAULT_BASE_URL": ""
-            }
         }
     ]
 }

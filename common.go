@@ -3,16 +3,33 @@ package confignet
 import (
 	"sort"
 
+	"github.com/Maurik77/go-confignet/decrypters"
 	"github.com/Maurik77/go-confignet/extensions"
 	"github.com/Maurik77/go-confignet/providers"
 )
 
 var (
 	configurationSources = make(map[string]extensions.IConfigurationSource)
+	decrypterSources     = make(map[string]extensions.IConfigurationDecrypterSource)
 )
 
-//Register registers a new configuration source
-func Register(configurationSource extensions.IConfigurationSource) {
+//RegisterDecrypterSource registers a new decrypter source
+func RegisterDecrypterSource(decrypterSource extensions.IConfigurationDecrypterSource) {
+	if decrypterSource == nil {
+		panic("confignet: Register decrypter source is nil")
+	}
+
+	uniqueIdentifier := decrypterSource.GetUniqueIdentifier()
+
+	if _, dup := decrypterSources[uniqueIdentifier]; dup {
+		panic("sql: Register called twice for decrypter source with unique identifier " + uniqueIdentifier)
+	}
+
+	decrypterSources[uniqueIdentifier] = decrypterSource
+}
+
+//RegisterConfigurationSource registers a new configuration source
+func RegisterConfigurationSource(configurationSource extensions.IConfigurationSource) {
 	if configurationSource == nil {
 		panic("confignet: Register configuration source is nil")
 	}
@@ -37,10 +54,11 @@ func ConfigurationSources() []string {
 }
 
 func init() {
-	Register(&providers.CmdLineConfigurationProviderSource{})
-	Register(&providers.EnvConfigurationProviderSource{})
-	Register(&providers.JSONConfigurationProviderSource{})
-	Register(&providers.YamlConfigurationProviderSource{})
-	Register(&providers.KeyvaultConfigurationProviderSource{})
-	Register(&providers.SplittedSecretsConfigurationProviderSource{})
+	RegisterConfigurationSource(&providers.CmdLineConfigurationProviderSource{})
+	RegisterConfigurationSource(&providers.EnvConfigurationProviderSource{})
+	RegisterConfigurationSource(&providers.JSONConfigurationProviderSource{})
+	RegisterConfigurationSource(&providers.YamlConfigurationProviderSource{})
+	RegisterConfigurationSource(&providers.KeyvaultConfigurationProviderSource{})
+	RegisterConfigurationSource(&providers.SplittedSecretsConfigurationProviderSource{})
+	RegisterDecrypterSource(&decrypters.AesConfigurationDecrypterSource{})
 }

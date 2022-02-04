@@ -1,15 +1,14 @@
 package confignet
 
 import (
-	"errors"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 
 	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/Maurik77/go-confignet/internal"
 	"github.com/Maurik77/go-confignet/providers"
-
 	"gopkg.in/yaml.v2"
 )
 
@@ -34,6 +33,10 @@ func (conf *ConfigurationBuilder) Add(source extensions.IConfigurationProvider) 
 
 // AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
 func (conf *ConfigurationBuilder) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
+	if conf.decrypters == nil {
+		conf.decrypters = make(map[*extensions.IConfigurationProvider]extensions.IConfigurationDecrypter)
+	}
+
 	conf.configurationProviders = append(conf.configurationProviders, source)
 	conf.decrypters[&source] = decrypter
 	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
@@ -55,9 +58,13 @@ func (conf *ConfigurationBuilder) AddDefaultConfigurationProvidersWithBasePath(b
 
 // ConfigureConfigurationProvidersFromSettings adds the default configuration providers
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromSettings(settings extensions.Settings) {
-
 	configureConfigurationProvidersFromSettings(settings.Providers, func(providerSettings extensions.ProviderSettings, provider extensions.IConfigurationProvider) {
-		conf.Add(provider)
+		if decrypterSource, ok := decrypterSources[providerSettings.Decrypter.Name]; ok {
+			conf.AddWithEncrypter(provider, decrypterSource.NewConfigurationDecrypter(providerSettings.Decrypter))
+		} else {
+			conf.Add(provider)
+		}
+
 		if chainedConfigurationProvider, ok := provider.(extensions.IChainedConfigurationProvider); ok {
 			configureConfigurationProvidersFromSettings(providerSettings.Providers, func(subProviderSettings extensions.ProviderSettings, subprovider extensions.IConfigurationProvider) {
 				chainedConfigurationProvider.Add(subprovider)
@@ -83,6 +90,7 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProviders() {
 
 	switch configFileType {
 	case "JSON":
+		conf.ConfigureConfigurationProvidersFromJSONConfig(configFilePath)
 	case "json":
 		conf.ConfigureConfigurationProvidersFromJSONConfig(configFilePath)
 	default:
@@ -92,13 +100,21 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProviders() {
 
 // ConfigureConfigurationProvidersFromJSONConfig adds the configuration providers reading from settings.json file
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromJSONConfig(jsonPath string) {
-	settings := unmarshalSettingsFile(jsonPath, "settings.json", yaml.Unmarshal)
+	if len(jsonPath) == 0 {
+		jsonPath = "settings.json"
+	}
+	var settings extensions.Settings
+	internal.UnmarshalFromFile(jsonPath, &settings, json.Unmarshal)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
 // ConfigureConfigurationProvidersFromYamlConfig adds the configuration providers reading from settings.yaml file
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(yamlPath string) {
-	settings := unmarshalSettingsFile(yamlPath, "settings.yaml", yaml.Unmarshal)
+	if len(yamlPath) == 0 {
+		yamlPath = "settings.yaml"
+	}
+	var settings extensions.Settings
+	internal.UnmarshalFromFile(yamlPath, &settings, yaml.Unmarshal)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
@@ -114,30 +130,4 @@ func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
 	}
 
 	return &result
-}
-
-func unmarshalSettingsFile(path string, defaultPath string, unmarshal func(in []byte, out interface{}) (err error)) extensions.Settings {
-	if path == "" {
-		path = defaultPath
-	}
-
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		log.Printf("ConfigurationBuilder:File not found %v", path)
-		return extensions.Settings{}
-	}
-
-	content, err := ioutil.ReadFile(path)
-
-	if err != nil {
-		log.Printf("ConfigurationBuilder:Error when opening file '%v': '%v'", path, err)
-		return extensions.Settings{}
-	}
-
-	var settings extensions.Settings
-	err = unmarshal(content, &settings)
-	if err != nil {
-		log.Println("ConfigurationBuilder:Error during Unmarshal(): ", err)
-	}
-
-	return settings
 }

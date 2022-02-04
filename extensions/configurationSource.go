@@ -16,6 +16,7 @@ type ProviderSettings struct {
 	Name       string                 `yaml:"name" json:"name"`
 	Properties map[string]interface{} `yaml:"properties" json:"properties"`
 	Providers  []ProviderSettings     `yaml:"providers" json:"providers"`
+	Decrypter  DecrypterSettings      `yaml:"decrypter" json:"decrypter"`
 }
 
 // GetPropertyValue return the found value or the default if the key doesn't exist in the collection

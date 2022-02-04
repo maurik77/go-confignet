@@ -1,12 +1,10 @@
 package providers
 
 import (
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
 
+	"github.com/Maurik77/go-confignet/internal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -24,25 +22,9 @@ type YamlConfigurationProvider struct {
 // Load configuration from YAML file key-value pairs
 func (provider *YamlConfigurationProvider) Load() {
 	provider.data = make(map[string]string)
-
-	if provider.FilePath == "" {
-		provider.FilePath = "app.yaml"
-	}
-
-	if _, err := os.Stat(provider.FilePath); errors.Is(err, os.ErrNotExist) {
-		log.Printf("YamlConfigurationProvider:File not found %v", provider.FilePath)
-		return
-	}
-
-	content, err := ioutil.ReadFile(provider.FilePath)
-
-	if err != nil {
-		log.Println("YamlConfigurationProvider:Error when opening file: ", err)
-		return
-	}
-
 	var payload map[string]interface{}
-	err = yaml.Unmarshal(content, &payload)
+	err := internal.UnmarshalFromFile(provider.FilePath, &payload, yaml.Unmarshal)
+
 	if err != nil {
 		log.Println("YamlConfigurationProvider:Error during Unmarshal(): ", err)
 	}

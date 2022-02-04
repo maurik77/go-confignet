@@ -2,11 +2,10 @@ package providers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
+
+	"github.com/Maurik77/go-confignet/internal"
 )
 
 const (
@@ -23,25 +22,9 @@ type JSONConfigurationProvider struct {
 // Load from JSON file key-value pairs
 func (provider *JSONConfigurationProvider) Load() {
 	provider.data = make(map[string]string)
-
-	if provider.FilePath == "" {
-		provider.FilePath = "app.json"
-	}
-
-	if _, err := os.Stat(provider.FilePath); errors.Is(err, os.ErrNotExist) {
-		log.Printf("JSONConfigurationProvider:File not found %v", provider.FilePath)
-		return
-	}
-
-	content, err := ioutil.ReadFile(provider.FilePath)
-
-	if err != nil {
-		log.Println("JSONConfigurationProvider:Error when opening file: ", err)
-		return
-	}
-
 	var payload map[string]interface{}
-	err = json.Unmarshal(content, &payload)
+
+	err := internal.UnmarshalFromFile(provider.FilePath, &payload, json.Unmarshal)
 	if err != nil {
 		log.Println("JSONConfigurationProvider:Error during Unmarshal(): ", err)
 	}
