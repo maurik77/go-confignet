@@ -30,19 +30,19 @@
                 {
                     "name": "yaml",
                     "properties": {
-                        "filePath": "copy-shamir-1.yaml"
+                        "filePath": "shamir/copy-shamir-1.yaml"
                     }
                 },
                 {
                     "name": "json",
                     "properties": {
-                        "filePath": "copy-shamir-2.json"
+                        "filePath": "shamir/copy-shamir-2.json"
                     }
                 },
                 {
                     "name": "yaml",
                     "properties": {
-                        "filePath": "copy-shamir-3.json"
+                        "filePath": "shamir/copy-shamir-3.json"
                     }
                 }
             ]

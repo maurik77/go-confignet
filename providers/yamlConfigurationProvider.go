@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/Maurik77/go-confignet/internal"
@@ -29,7 +28,7 @@ func (provider *YamlConfigurationProvider) Load() {
 		log.Println("YamlConfigurationProvider:Error during Unmarshal(): ", err)
 	}
 
-	provider.loadProperties("", payload)
+	provider.data = internal.LoadProperties(provider.GetSeparator(), payload)
 }
 
 // GetData provides the loaded data
@@ -40,19 +39,4 @@ func (provider *YamlConfigurationProvider) GetData() map[string]string {
 // GetSeparator provides the separator that it uses to store nested object
 func (provider *YamlConfigurationProvider) GetSeparator() string {
 	return "."
-}
-
-func (provider *YamlConfigurationProvider) loadProperties(parent string, json map[string]interface{}) {
-	for key, value := range json {
-		if parent != "" {
-			key = fmt.Sprintf("%v%v%v", parent, provider.GetSeparator(), key)
-		}
-
-		switch v := value.(type) {
-		default:
-			provider.data[key] = fmt.Sprint(v)
-		case map[string]interface{}:
-			provider.loadProperties(key, v)
-		}
-	}
 }

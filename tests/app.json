@@ -8,7 +8,15 @@
             "PropertyInt16": 3,
             "PropertyInt64": 4,
             "PropertyBool": true,
-            "Time": "2022-01-01"
+            "Time": "2022-01-01",
+            "ArrayStr": [
+                "Test",
+                "Test2"
+            ],
+            "ArrayInt": [
+                3,
+                5
+            ]
         }
     }
 }

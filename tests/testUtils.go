@@ -18,6 +18,8 @@ type subObj struct {
 	PropertyInt64  int64
 	PropertyBool   bool
 	Time           time.Time
+	ArrayStr       []string
+	ArrayInt       []int
 }
 
 func validateSubObject(t *testing.T, expected subObj, result subObj) {

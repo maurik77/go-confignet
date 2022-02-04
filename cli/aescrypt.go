@@ -26,10 +26,7 @@ func main() {
 	var marshal func(v interface{}) ([]byte, error)
 
 	switch configFileType {
-	case "json":
-		unmarshal = json.Unmarshal
-		marshal = json.Marshal
-	case "JSON":
+	case "json", "JSON":
 		unmarshal = json.Unmarshal
 		marshal = json.Marshal
 	default:

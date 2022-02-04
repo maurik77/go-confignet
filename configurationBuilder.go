@@ -83,9 +83,7 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProviders() {
 	var configFilePath = os.Getenv(EnvConfigFilePath)
 
 	switch configFileType {
-	case "JSON":
-		conf.ConfigureConfigurationProvidersFromJSONConfig(configFilePath)
-	case "json":
+	case "json", "JSON":
 		conf.ConfigureConfigurationProvidersFromJSONConfig(configFilePath)
 	default:
 		conf.ConfigureConfigurationProvidersFromYamlConfig(configFilePath)

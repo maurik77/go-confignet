@@ -100,31 +100,31 @@ func fillField(field reflect.Value, value string) {
 	case *int:
 		*v, _ = strconv.Atoi(value)
 	case *int8:
-		conv, err := strconv.ParseInt(value, 10, 16)
+		parsed, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
-			*v = int8(conv)
+			*v = int8(parsed)
 		}
 	case *int16:
-		conv, err := strconv.ParseInt(value, 10, 16)
+		parsed, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
-			*v = int16(conv)
+			*v = int16(parsed)
 		}
 	case *int64:
 		*v, _ = strconv.ParseInt(value, 10, 64)
 	case *uint:
-		conv, err := strconv.ParseUint(value, 10, 0)
+		parsed, err := strconv.ParseUint(value, 10, 0)
 		if err == nil {
-			*v = uint(conv)
+			*v = uint(parsed)
 		}
 	case *uint8:
-		conv, err := strconv.ParseUint(value, 10, 16)
+		parsed, err := strconv.ParseUint(value, 10, 16)
 		if err == nil {
-			*v = uint8(conv)
+			*v = uint8(parsed)
 		}
 	case *uint16:
-		conv, err := strconv.ParseInt(value, 10, 16)
+		parsed, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
-			*v = uint16(conv)
+			*v = uint16(parsed)
 		}
 	case *uint64:
 		*v, _ = strconv.ParseUint(value, 10, 64)
@@ -132,6 +132,8 @@ func fillField(field reflect.Value, value string) {
 		*v, _ = strconv.ParseBool(value)
 	case *time.Time:
 		*v, _ = time.Parse(time.RFC3339Nano, value)
+	case *[]interface{}:
+		fmt.Println(v)
 	}
 }
 
