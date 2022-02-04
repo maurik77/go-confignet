@@ -21,24 +21,18 @@ const (
 
 // ConfigurationBuilder is the concrete implementation
 type ConfigurationBuilder struct {
-	configurationProviders []extensions.IConfigurationProvider
-	decrypters             map[*extensions.IConfigurationProvider]extensions.IConfigurationDecrypter
+	configurationProvidersInfo []extensions.ConfigurationProviderInfo
 }
 
 // Add adds the configuration provider to the inner collection
 func (conf *ConfigurationBuilder) Add(source extensions.IConfigurationProvider) {
-	conf.configurationProviders = append(conf.configurationProviders, source)
+	conf.configurationProvidersInfo = append(conf.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source})
 	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
 func (conf *ConfigurationBuilder) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
-	if conf.decrypters == nil {
-		conf.decrypters = make(map[*extensions.IConfigurationProvider]extensions.IConfigurationDecrypter)
-	}
-
-	conf.configurationProviders = append(conf.configurationProviders, source)
-	conf.decrypters[&source] = decrypter
+	conf.configurationProvidersInfo = append(conf.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source, Decrypter: decrypter})
 	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
 }
 
@@ -120,13 +114,12 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(
 
 // Build invokes the load function of each configuration provider and return the Configuration object
 func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
-	for _, confProvider := range conf.configurationProviders {
-		confProvider.Load()
+	for _, confProvider := range conf.configurationProvidersInfo {
+		confProvider.Provider.Load()
 	}
 
 	result := Configuration{
-		configurationProviders: conf.configurationProviders,
-		decrypters:             conf.decrypters,
+		configurationProvidersInfo: conf.configurationProvidersInfo,
 	}
 
 	return &result
