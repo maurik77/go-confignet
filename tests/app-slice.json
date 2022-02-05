@@ -1,0 +1,10 @@
+{
+    "config": {
+        "Obj1": {
+            "ArrayStr": [
+                "Test",
+                "Test2"
+            ]
+        }
+    }
+}

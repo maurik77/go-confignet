@@ -8,8 +8,8 @@ type AesConfigurationDecrypter struct {
 }
 
 // Decrypt decrypts the input encrypted string using aes256 algorithm
-func (decrypter *AesConfigurationDecrypter) Decrypt(encryptedValue string) (decryptedValue string, err error) {
-	decryptedBytes, err := internal.DecryptBase64ToBytes(encryptedValue, decrypter.Secret)
+func (decrypter *AesConfigurationDecrypter) Decrypt(encryptedValue ...string) (decryptedValue string, err error) {
+	decryptedBytes, err := internal.DecryptBase64ToBytes(encryptedValue[0], decrypter.Secret)
 
 	if err != nil {
 		return "", err
