@@ -25,7 +25,10 @@
             "properties": {}
         },
         {
-            "name": "shamir",
+            "name": "chained",
+            "decrypter": {
+                "name": "shamir"
+            },
             "providers": [
                 {
                     "name": "yaml",

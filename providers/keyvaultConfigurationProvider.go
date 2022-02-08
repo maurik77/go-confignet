@@ -9,6 +9,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
+	"github.com/Maurik77/go-confignet/extensions"
 )
 
 // KeyvaultConfigurationProvider loads configuration from Azure Key Vault
@@ -23,7 +24,7 @@ type KeyvaultConfigurationProvider struct {
 }
 
 // Load configuration from Azure Key Vault
-func (provider *KeyvaultConfigurationProvider) Load() {
+func (provider *KeyvaultConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
 	provider.data = make(map[string]string)
 
 	cred, err := provider.getCredential()
@@ -53,9 +54,23 @@ func (provider *KeyvaultConfigurationProvider) Load() {
 			}
 
 			resp, err := client.GetSecret(context.Background(), key, nil)
-			if err == nil {
-				provider.data[key] = *resp.Value
+			if err != nil {
+				log.Printf("KeyvaultConfigurationProvider:Error retrieving key %v. %v", key, err)
+				continue
 			}
+
+			value := *resp.Value
+
+			if decrypter != nil {
+				var err error
+				value, err = decrypter.Decrypt(value)
+
+				if err != nil {
+					log.Printf("KeyvaultConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				}
+			}
+
+			provider.data[key] = *resp.Value
 		}
 	}
 }

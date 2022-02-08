@@ -16,7 +16,7 @@ func TestConfigureConfigurationProvidersFromEnvVarJson(t *testing.T) {
 	confBuilder.ConfigureConfigurationProviders()
 	config := confBuilder.Build()
 
-	validateBinding(config, t)
+	validateBinding(config, t, nil)
 }
 
 func TestConfigureConfigurationProvidersFromEnvVarYaml(t *testing.T) {
@@ -29,7 +29,7 @@ func TestConfigureConfigurationProvidersFromEnvVarYaml(t *testing.T) {
 
 	config := confBuilder.Build()
 
-	validateBinding(config, t)
+	validateBinding(config, t, nil)
 }
 
 func TestConfigureConfigurationProvidersFromJSONConfig(t *testing.T) {
@@ -39,7 +39,7 @@ func TestConfigureConfigurationProvidersFromJSONConfig(t *testing.T) {
 
 	config := confBuilder.Build()
 
-	validateBinding(config, t)
+	validateBinding(config, t, nil)
 }
 
 func TestConfigureConfigurationProvidersFromYamlConfig(t *testing.T) {
@@ -49,31 +49,30 @@ func TestConfigureConfigurationProvidersFromYamlConfig(t *testing.T) {
 
 	config := confBuilder.Build()
 
-	validateBinding(config, t)
+	validateBinding(config, t, nil)
 }
 
-func validateBinding(config extensions.IConfiguration, t *testing.T) {
+func validateBinding(config extensions.IConfiguration, t *testing.T, expected *myConfig) {
 
 	myCfg := myConfig{}
 	config.Bind("config", &myCfg)
 
-	expected := subObj{
-		PropertyString: "Encrypted splitted string",
-		PropertyInt:    1,
-		PropertyInt8:   2,
-		PropertyInt16:  3,
-		PropertyInt64:  4,
-		PropertyBool:   true,
+	if expected == nil {
+		expected = &myConfig{
+			PropertyInt8: 45,
+			Obj1: subObj{
+				PropertyString: "Encrypted splitted string",
+				PropertyInt:    1,
+				PropertyInt8:   2,
+				PropertyInt16:  3,
+				PropertyInt64:  4,
+				PropertyBool:   true,
+			}}
 	}
 
-	if myCfg.PropertyInt8 != 45 {
-		t.Log("error should be", 45, ", but got", myCfg.PropertyInt8)
-		t.Fail()
-	}
-
-	validateSubObject(t, expected, myCfg.Obj1)
+	validateObject(t, *expected, myCfg)
 
 	subObjConf := subObj{}
 	config.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected, subObjConf)
+	validateSubObject(t, expected.Obj1, subObjConf)
 }

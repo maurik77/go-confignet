@@ -3,6 +3,7 @@ package providers
 import (
 	"log"
 
+	"github.com/Maurik77/go-confignet/extensions"
 	"github.com/Maurik77/go-confignet/internal"
 	"gopkg.in/yaml.v3"
 )
@@ -19,7 +20,7 @@ type YamlConfigurationProvider struct {
 }
 
 // Load configuration from YAML file key-value pairs
-func (provider *YamlConfigurationProvider) Load() {
+func (provider *YamlConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
 	provider.data = make(map[string]string)
 	var payload map[string]interface{}
 	err := internal.UnmarshalFromFile(provider.FilePath, &payload, yaml.Unmarshal)
@@ -29,6 +30,20 @@ func (provider *YamlConfigurationProvider) Load() {
 	}
 
 	provider.data = internal.LoadProperties(provider.GetSeparator(), payload)
+
+	if decrypter != nil {
+		var err error
+
+		for key, value := range provider.data {
+			value, err = decrypter.Decrypt(value)
+
+			if err != nil {
+				log.Printf("YamlConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+			} else {
+				provider.data[key] = value
+			}
+		}
+	}
 }
 
 // GetData provides the loaded data

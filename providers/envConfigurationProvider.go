@@ -1,8 +1,11 @@
 package providers
 
 import (
+	"log"
 	"os"
 	"strings"
+
+	"github.com/Maurik77/go-confignet/extensions"
 )
 
 // EnvConfigurationProvider loads configuration from environment variables
@@ -13,7 +16,7 @@ type EnvConfigurationProvider struct {
 }
 
 // Load configuration from environment variables
-func (provider *EnvConfigurationProvider) Load() {
+func (provider *EnvConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
 	provider.data = make(map[string]string)
 
 	for _, env := range os.Environ() {
@@ -27,6 +30,15 @@ func (provider *EnvConfigurationProvider) Load() {
 
 		if provider.Prefix != "" && provider.RemovePrefix {
 			key = strings.TrimPrefix(key, provider.Prefix)
+		}
+
+		if decrypter != nil {
+			var err error
+			value, err = decrypter.Decrypt(value)
+
+			if err != nil {
+				log.Printf("EnvConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+			}
 		}
 
 		provider.data[key] = value

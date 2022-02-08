@@ -33,8 +33,8 @@ func (conf *Configuration) GetValue(section string) string {
 	for _, p := range conf.configurationProvidersInfo {
 		props := filterProperties(section, p)
 		if len(props) == 1 {
-			for key, value := range props {
-				result = conf.getValue(key, value, p)
+			for _, value := range props {
+				result = value
 				break
 			}
 		}
@@ -49,22 +49,6 @@ func (conf *Configuration) Bind(section string, value interface{}) {
 		props := filterProperties(section, p)
 		conf.bindProps(p, props, value)
 	}
-}
-
-func (conf *Configuration) getValue(key string, value string, configInfo extensions.ConfigurationProviderInfo) string {
-	if configInfo.Decrypter != nil {
-
-		decrypetValue, err := configInfo.Decrypter.Decrypt(value)
-
-		if err != nil {
-			log.Printf("Configuration:getValue error during the decryption of key '%v' with value '%v'. Configuration provider: '%T', Decrypter: '%T'", key, value, configInfo.Provider, configInfo.Decrypter)
-			return value
-		}
-
-		return decrypetValue
-	}
-
-	return value
 }
 
 func (conf *Configuration) bindProps(configInfo extensions.ConfigurationProviderInfo, props map[string]string, value interface{}) {
@@ -91,7 +75,7 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 	}
 
 	if len(parts) == 1 { // property
-		fillField(nestedField, conf.getValue(fieldName, value, configInfo))
+		fillField(nestedField, value)
 	} else { // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}
@@ -146,8 +130,8 @@ func fillField(field reflect.Value, value string) {
 	}
 }
 
-func filterProperties(section string, configInfo extensions.ConfigurationProviderInfo) map[string]string {
-	result := map[string]string{}
+func filterProperties(section string, configInfo extensions.ConfigurationProviderInfo) (data map[string]string) {
+	data = map[string]string{}
 	properties := configInfo.Provider.GetData()
 	separator := configInfo.Provider.GetSeparator()
 
@@ -158,9 +142,9 @@ func filterProperties(section string, configInfo extensions.ConfigurationProvide
 	for key, value := range properties {
 		if strings.HasPrefix(key, section) {
 			mapKey := strings.TrimPrefix(key, fmt.Sprintf("%v%v", section, separator))
-			result[mapKey] = value
+			data[mapKey] = value
 		}
 	}
 
-	return result
+	return data
 }

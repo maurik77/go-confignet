@@ -113,7 +113,7 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(
 // Build invokes the load function of each configuration provider and return the Configuration object
 func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
 	for _, confProvider := range conf.configurationProvidersInfo {
-		confProvider.Provider.Load()
+		confProvider.Provider.Load(confProvider.Decrypter)
 	}
 
 	result := Configuration{

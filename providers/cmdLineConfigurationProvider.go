@@ -1,8 +1,11 @@
 package providers
 
 import (
+	"log"
 	"os"
 	"strings"
+
+	"github.com/Maurik77/go-confignet/extensions"
 )
 
 // CmdLineConfigurationProvider loads configuration from commandline arguments
@@ -14,7 +17,7 @@ type CmdLineConfigurationProvider struct {
 }
 
 // Load configuration from commandline arguments
-func (provider *CmdLineConfigurationProvider) Load() {
+func (provider *CmdLineConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
 	provider.data = make(map[string]string)
 
 	for _, arg := range os.Args[1:] {
@@ -41,6 +44,15 @@ func (provider *CmdLineConfigurationProvider) Load() {
 
 		if provider.Prefix != "" && provider.RemovePrefix {
 			key = strings.TrimPrefix(key, provider.Prefix)
+		}
+
+		if decrypter != nil {
+			var err error
+			value, err = decrypter.Decrypt(value)
+
+			if err != nil {
+				log.Printf("CmdLineConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+			}
 		}
 
 		provider.data[key] = value

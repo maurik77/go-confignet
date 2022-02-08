@@ -16,5 +16,17 @@ func TestConfigureConfigurationProvidersSecret(t *testing.T) {
 	confBuilder.ConfigureConfigurationProviders()
 	config := confBuilder.Build()
 
-	validateBinding(config, t)
+	expected := myConfig{
+		PropertyInt8: 45,
+		Obj1: subObj{
+			PropertyString: "TestObj1",
+			PropertyInt:    1,
+			PropertyInt8:   2,
+			PropertyInt16:  3,
+			PropertyInt64:  4,
+			PropertyBool:   true,
+		},
+	}
+
+	validateBinding(config, t, &expected)
 }

@@ -2,7 +2,7 @@ package extensions
 
 // IConfigurationProvider is configuration provider interface
 type IConfigurationProvider interface {
-	Load()
+	Load(decrypter IConfigurationDecrypter)
 	GetData() map[string]string
 	GetSeparator() string
 }
