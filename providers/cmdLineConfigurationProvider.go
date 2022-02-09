@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/maurik77/go-confignet/extensions"
 )
 
 // CmdLineConfigurationProvider loads configuration from commandline arguments

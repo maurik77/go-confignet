@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/maurik77/go-confignet/extensions"
 )
 
 const (

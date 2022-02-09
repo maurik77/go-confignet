@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Maurik77/go-confignet"
-	"github.com/Maurik77/go-confignet/decrypters"
-	"github.com/Maurik77/go-confignet/extensions"
-	"github.com/Maurik77/go-confignet/providers"
+	"github.com/maurik77/go-confignet"
+	"github.com/maurik77/go-confignet/decrypters"
+	"github.com/maurik77/go-confignet/extensions"
+	"github.com/maurik77/go-confignet/providers"
 
 	"github.com/lafriks/go-shamir"
 )

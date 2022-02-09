@@ -1,6 +1,6 @@
 package providers
 
-import "github.com/Maurik77/go-confignet/extensions"
+import "github.com/maurik77/go-confignet/extensions"
 
 // KeyvaultConfigurationProviderSource is able to create KeyvaultConfigurationProvider starting from the provider settings
 type KeyvaultConfigurationProviderSource struct {

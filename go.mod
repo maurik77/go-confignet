@@ -1,4 +1,4 @@
-module github.com/Maurik77/go-confignet
+module github.com/maurik77/go-confignet
 
 go 1.17
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Maurik77/go-confignet"
+	"github.com/maurik77/go-confignet"
 )
 
 func TestConfigurationProviderSources(t *testing.T) {

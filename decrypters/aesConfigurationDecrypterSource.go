@@ -1,6 +1,6 @@
 package decrypters
 
-import "github.com/Maurik77/go-confignet/extensions"
+import "github.com/maurik77/go-confignet/extensions"
 
 // AesConfigurationDecrypterSource is able to create AesConfigurationDecrypter starting from the provider settings
 type AesConfigurationDecrypterSource struct {

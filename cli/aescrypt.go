@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/Maurik77/go-confignet/internal"
+	"github.com/maurik77/go-confignet/internal"
 	"gopkg.in/yaml.v2"
 )
 

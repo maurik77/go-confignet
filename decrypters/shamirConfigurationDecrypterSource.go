@@ -1,6 +1,6 @@
 package decrypters
 
-import "github.com/Maurik77/go-confignet/extensions"
+import "github.com/maurik77/go-confignet/extensions"
 
 // ShamirConfigurationDecrypterSource is able to create ShamirConfigurationDecrypter starting from the provider settings
 type ShamirConfigurationDecrypterSource struct {

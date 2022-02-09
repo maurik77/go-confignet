@@ -1,6 +1,6 @@
 package decrypters
 
-import "github.com/Maurik77/go-confignet/internal"
+import "github.com/maurik77/go-confignet/internal"
 
 // AesConfigurationDecrypter .
 type AesConfigurationDecrypter struct {

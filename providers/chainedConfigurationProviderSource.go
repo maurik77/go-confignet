@@ -1,6 +1,6 @@
 package providers
 
-import "github.com/Maurik77/go-confignet/extensions"
+import "github.com/maurik77/go-confignet/extensions"
 
 // ChainedConfigurationProviderSource is able to create ChainedConfigurationProvider starting from the provider settings
 type ChainedConfigurationProviderSource struct {

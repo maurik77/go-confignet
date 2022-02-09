@@ -9,7 +9,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
-	"github.com/Maurik77/go-confignet/extensions"
+	"github.com/maurik77/go-confignet/extensions"
 )
 
 // KeyvaultConfigurationProvider loads configuration from Azure Key Vault

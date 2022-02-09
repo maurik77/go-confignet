@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/Maurik77/go-confignet/extensions"
-	"github.com/Maurik77/go-confignet/internal"
-	"github.com/Maurik77/go-confignet/providers"
+	"github.com/maurik77/go-confignet/extensions"
+	"github.com/maurik77/go-confignet/internal"
+	"github.com/maurik77/go-confignet/providers"
 	"gopkg.in/yaml.v2"
 )
 
