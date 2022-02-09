@@ -52,25 +52,25 @@ func (conf *ConfigurationBuilder) AddDefaultConfigurationProvidersWithBasePath(b
 
 // ConfigureConfigurationProvidersFromSettings adds the default configuration providers
 func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromSettings(settings extensions.Settings) {
-	configureConfigurationProvidersFromSettings(settings.Providers, func(providerSettings extensions.ProviderSettings, provider extensions.IConfigurationProvider) {
-		if decrypterSource, ok := decrypterSources[providerSettings.Decrypter.Name]; ok {
-			conf.AddWithEncrypter(provider, decrypterSource.NewConfigurationDecrypter(providerSettings.Decrypter))
-		} else {
-			conf.Add(provider)
-		}
 
-		if chainedConfigurationProvider, ok := provider.(extensions.IChainedConfigurationProvider); ok {
-			configureConfigurationProvidersFromSettings(providerSettings.Providers, func(subProviderSettings extensions.ProviderSettings, subprovider extensions.IConfigurationProvider) {
-				chainedConfigurationProvider.Add(subprovider)
-			})
-		}
-	})
+	configureConfigurationProvidersFromSettings(settings.Providers, conf)
 }
 
-func configureConfigurationProvidersFromSettings(settings []extensions.ProviderSettings, add func(extensions.ProviderSettings, extensions.IConfigurationProvider)) {
+func configureConfigurationProvidersFromSettings(settings []extensions.ProviderSettings, configurationProvidersCollection extensions.IConfigurationProviderCollection) {
 	for _, providerSettings := range settings {
 		if configurationSource, ok := configurationSources[providerSettings.Name]; ok {
-			add(providerSettings, configurationSource.NewConfigurationProvider(providerSettings))
+			provider := configurationSource.NewConfigurationProvider(providerSettings)
+
+			if decrypterSource, ok := decrypterSources[providerSettings.Decrypter.Name]; ok {
+				configurationProvidersCollection.AddWithEncrypter(provider, decrypterSource.NewConfigurationDecrypter(providerSettings.Decrypter))
+			} else {
+				configurationProvidersCollection.Add(provider)
+			}
+
+			if chainedConfigurationProvider, ok := provider.(extensions.IConfigurationProviderCollection); ok {
+				configureConfigurationProvidersFromSettings(providerSettings.Providers, chainedConfigurationProvider)
+			}
+
 		} else {
 			log.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", providerSettings.Name)
 		}

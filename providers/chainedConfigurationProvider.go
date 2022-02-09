@@ -9,15 +9,21 @@ import (
 
 // ChainedConfigurationProvider loads configuration from other configuration providers
 type ChainedConfigurationProvider struct {
-	data                   map[string]string
-	dataValues             map[string][]string
-	configurationProviders []extensions.IConfigurationProvider
+	data                       map[string]string
+	dataValues                 map[string][]string
+	configurationProvidersInfo []extensions.ConfigurationProviderInfo
 }
 
 // Add adds the configuration provider to the inner collection
 func (provider *ChainedConfigurationProvider) Add(source extensions.IConfigurationProvider) {
-	provider.configurationProviders = append(provider.configurationProviders, source)
+	provider.configurationProvidersInfo = append(provider.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source})
 	log.Printf("ChainedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
+}
+
+// AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
+func (provider *ChainedConfigurationProvider) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
+	provider.configurationProvidersInfo = append(provider.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source, Decrypter: decrypter})
+	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
 }
 
 // Load configuration from environment variables
@@ -25,11 +31,11 @@ func (provider *ChainedConfigurationProvider) Load(decrypter extensions.IConfigu
 	provider.data = make(map[string]string)
 	provider.dataValues = make(map[string][]string)
 
-	for _, confProvider := range provider.configurationProviders {
-		confProvider.Load(nil)
+	for _, confProvider := range provider.configurationProvidersInfo {
+		confProvider.Provider.Load(confProvider.Decrypter)
 
-		for key, value := range confProvider.GetData() {
-			internalKey := strings.ReplaceAll(key, confProvider.GetSeparator(), provider.GetSeparator())
+		for key, value := range confProvider.Provider.GetData() {
+			internalKey := strings.ReplaceAll(key, confProvider.Provider.GetSeparator(), provider.GetSeparator())
 			provider.data[internalKey] = value
 			provider.dataValues[internalKey] = append(provider.dataValues[internalKey], value)
 		}

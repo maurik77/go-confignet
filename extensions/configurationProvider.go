@@ -10,5 +10,5 @@ type IConfigurationProvider interface {
 // IChainedConfigurationProvider is configuration provider interface
 type IChainedConfigurationProvider interface {
 	IConfigurationProvider
-	Add(source IConfigurationProvider)
+	IConfigurationProviderCollection
 }
