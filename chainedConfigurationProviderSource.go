@@ -1,4 +1,4 @@
-package providers
+package confignet
 
 import "github.com/maurik77/go-confignet/extensions"
 

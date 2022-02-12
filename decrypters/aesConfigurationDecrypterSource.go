@@ -2,6 +2,11 @@ package decrypters
 
 import "github.com/maurik77/go-confignet/extensions"
 
+const (
+	// DecrypterAesIdentifier is the environment variable containing the UniqueIdentifier of the decrypter
+	DecrypterAesIdentifier = "aes"
+)
+
 // AesConfigurationDecrypterSource is able to create AesConfigurationDecrypter starting from the provider settings
 type AesConfigurationDecrypterSource struct {
 }
@@ -21,5 +26,5 @@ func (decrypterSource *AesConfigurationDecrypterSource) NewConfigurationDecrypte
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (decrypterSource *AesConfigurationDecrypterSource) GetUniqueIdentifier() string {
-	return "aes"
+	return DecrypterAesIdentifier
 }

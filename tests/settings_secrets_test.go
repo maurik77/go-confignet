@@ -13,7 +13,7 @@ func TestConfigureConfigurationProvidersSecret(t *testing.T) {
 	t.Setenv(confignet.EnvConfigFileType, "json")
 	t.Setenv(confignet.EnvConfigFilePath, "settings-secrets.json")
 
-	confBuilder.ConfigureConfigurationProviders()
+	confBuilder.ConfigureConfigurationProvidersFromEnv()
 	config := confBuilder.Build()
 
 	expected := myConfig{

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/internal"
@@ -17,6 +18,14 @@ const (
 	EnvConfigFileType = "confignet_configfiletype"
 	// EnvConfigFilePath is the environment variable containing the file path
 	EnvConfigFilePath = "confignet_configfilepath"
+	// ConfigFileTypeJSON is the value of the configuration file type JSON
+	ConfigFileTypeJSON = "json"
+	// ConfigFileTypeYAML is the value of the configuration file type YAML
+	ConfigFileTypeYAML = "yaml"
+	// DefaultConfigFileJSON is the value of the default configuration file name JSON
+	DefaultConfigFileJSON = "settings.json"
+	// DefaultConfigFileYAML is the value of the default configuration file name YAML
+	DefaultConfigFileYAML = "settings.yaml"
 )
 
 // ConfigurationBuilder is the concrete implementation
@@ -77,33 +86,38 @@ func configureConfigurationProvidersFromSettings(settings []extensions.ProviderS
 	}
 }
 
-// ConfigureConfigurationProviders adds the configuration providers reading from settings.json or settings.yaml file
-func (conf *ConfigurationBuilder) ConfigureConfigurationProviders() {
+// ConfigureConfigurationProvidersFromEnv adds the configuration providers reading from settings.json or settings.yaml file
+func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromEnv() {
 	var configFileType = os.Getenv(EnvConfigFileType)
 	var configFilePath = os.Getenv(EnvConfigFilePath)
 
-	switch configFileType {
-	case "json", "JSON":
-		conf.ConfigureConfigurationProvidersFromJSONConfig(configFilePath)
+	conf.ConfigureConfigurationProviders(configFileType, configFilePath)
+}
+
+// ConfigureConfigurationProviders adds the configuration providers reading from settings.json file
+func (conf *ConfigurationBuilder) ConfigureConfigurationProviders(configFileType string, configFilePath string) {
+	switch strings.ToLower(configFileType) {
+	case ConfigFileTypeJSON:
+		conf.configureConfigurationProvidersFromJSONConfig(configFilePath)
 	default:
-		conf.ConfigureConfigurationProvidersFromYamlConfig(configFilePath)
+		conf.configureConfigurationProvidersFromYamlConfig(configFilePath)
 	}
 }
 
-// ConfigureConfigurationProvidersFromJSONConfig adds the configuration providers reading from settings.json file
-func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromJSONConfig(jsonPath string) {
+// configureConfigurationProvidersFromJSONConfig adds the configuration providers reading from settings.json file
+func (conf *ConfigurationBuilder) configureConfigurationProvidersFromJSONConfig(jsonPath string) {
 	if len(jsonPath) == 0 {
-		jsonPath = "settings.json"
+		jsonPath = DefaultConfigFileJSON
 	}
 	var settings extensions.Settings
 	internal.UnmarshalFromFile(jsonPath, &settings, json.Unmarshal)
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
-// ConfigureConfigurationProvidersFromYamlConfig adds the configuration providers reading from settings.yaml file
-func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(yamlPath string) {
+// configureConfigurationProvidersFromYamlConfig adds the configuration providers reading from settings.yaml file
+func (conf *ConfigurationBuilder) configureConfigurationProvidersFromYamlConfig(yamlPath string) {
 	if len(yamlPath) == 0 {
-		yamlPath = "settings.yaml"
+		yamlPath = DefaultConfigFileYAML
 	}
 	var settings extensions.Settings
 	internal.UnmarshalFromFile(yamlPath, &settings, yaml.Unmarshal)
@@ -114,6 +128,9 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromYamlConfig(
 func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
 	for _, confProvider := range conf.configurationProvidersInfo {
 		confProvider.Provider.Load(confProvider.Decrypter)
+		if confProvider.Decrypter != nil {
+			confProvider.Decrypter.Init(&ConfigurationBuilder{})
+		}
 	}
 
 	result := Configuration{
