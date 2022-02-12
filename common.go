@@ -59,7 +59,7 @@ func init() {
 	RegisterConfigurationSource(&providers.JSONConfigurationProviderSource{})
 	RegisterConfigurationSource(&providers.YamlConfigurationProviderSource{})
 	RegisterConfigurationSource(&providers.KeyvaultConfigurationProviderSource{})
-	RegisterConfigurationSource(&providers.ChainedConfigurationProviderSource{})
+	RegisterConfigurationSource(&ChainedConfigurationProviderSource{})
 	RegisterDecrypterSource(&decrypters.AesConfigurationDecrypterSource{})
 	RegisterDecrypterSource(&decrypters.ShamirConfigurationDecrypterSource{})
 }

@@ -10,10 +10,10 @@ import (
 func TestConfigureConfigurationProvidersFromEnvVarJson(t *testing.T) {
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 
-	t.Setenv(confignet.EnvConfigFileType, "json")
-	t.Setenv(confignet.EnvConfigFilePath, "settings.json")
+	t.Setenv(confignet.EnvConfigFileType, confignet.ConfigFileTypeJSON)
+	t.Setenv(confignet.EnvConfigFilePath, confignet.DefaultConfigFileJSON)
 
-	confBuilder.ConfigureConfigurationProviders()
+	confBuilder.ConfigureConfigurationProvidersFromEnv()
 	config := confBuilder.Build()
 
 	validateBinding(config, t, nil)
@@ -22,10 +22,10 @@ func TestConfigureConfigurationProvidersFromEnvVarJson(t *testing.T) {
 func TestConfigureConfigurationProvidersFromEnvVarYaml(t *testing.T) {
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 
-	t.Setenv(confignet.EnvConfigFileType, "yaml")
-	t.Setenv(confignet.EnvConfigFilePath, "settings.yaml")
+	t.Setenv(confignet.EnvConfigFileType, confignet.ConfigFileTypeYAML)
+	t.Setenv(confignet.EnvConfigFilePath, confignet.DefaultConfigFileYAML)
 
-	confBuilder.ConfigureConfigurationProviders()
+	confBuilder.ConfigureConfigurationProvidersFromEnv()
 
 	config := confBuilder.Build()
 
@@ -35,7 +35,7 @@ func TestConfigureConfigurationProvidersFromEnvVarYaml(t *testing.T) {
 func TestConfigureConfigurationProvidersFromJSONConfig(t *testing.T) {
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 
-	confBuilder.ConfigureConfigurationProvidersFromJSONConfig("")
+	confBuilder.ConfigureConfigurationProviders(confignet.ConfigFileTypeJSON, "")
 
 	config := confBuilder.Build()
 
@@ -45,7 +45,7 @@ func TestConfigureConfigurationProvidersFromJSONConfig(t *testing.T) {
 func TestConfigureConfigurationProvidersFromYamlConfig(t *testing.T) {
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 
-	confBuilder.ConfigureConfigurationProvidersFromYamlConfig("")
+	confBuilder.ConfigureConfigurationProviders(confignet.ConfigFileTypeYAML, "")
 
 	config := confBuilder.Build()
 
