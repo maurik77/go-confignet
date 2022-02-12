@@ -4,10 +4,16 @@ import (
 	"encoding/base64"
 
 	"github.com/lafriks/go-shamir"
+	"github.com/maurik77/go-confignet/extensions"
 )
 
 // ShamirConfigurationDecrypter .
 type ShamirConfigurationDecrypter struct {
+}
+
+// Init the decrypter
+func (decrypter *ShamirConfigurationDecrypter) Init(configurationBuilder extensions.IConfigurationBuilder) {
+
 }
 
 // Decrypt decrypts the input encrypted string using aes256 algorithm

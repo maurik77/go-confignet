@@ -2,6 +2,11 @@ package decrypters
 
 import "github.com/maurik77/go-confignet/extensions"
 
+const (
+	// DecrypterShamirIdentifier is the environment variable containing the UniqueIdentifier of the decrypter
+	DecrypterShamirIdentifier = "shamir"
+)
+
 // ShamirConfigurationDecrypterSource is able to create ShamirConfigurationDecrypter starting from the provider settings
 type ShamirConfigurationDecrypterSource struct {
 }
@@ -17,5 +22,5 @@ func (decrypterSource *ShamirConfigurationDecrypterSource) NewConfigurationDecry
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (decrypterSource *ShamirConfigurationDecrypterSource) GetUniqueIdentifier() string {
-	return "shamir"
+	return DecrypterShamirIdentifier
 }

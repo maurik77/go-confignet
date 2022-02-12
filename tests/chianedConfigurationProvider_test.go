@@ -28,7 +28,7 @@ func TestGenerateStringParts(t *testing.T) {
 func TestConfigShamir12(t *testing.T) {
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-	var chained extensions.IChainedConfigurationProvider = &providers.ChainedConfigurationProvider{}
+	var chained extensions.IChainedConfigurationProvider = &confignet.ChainedConfigurationProvider{}
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "shamir/copy-shamir-1.yaml"})
 	chained.Add(&providers.JSONConfigurationProvider{FilePath: "shamir/copy-shamir-2.json"})
 	confBuilder.AddWithEncrypter(chained, &decrypters.ShamirConfigurationDecrypter{})
@@ -47,7 +47,7 @@ func TestConfigShamir12(t *testing.T) {
 func TestConfigShamir13(t *testing.T) {
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-	var chained extensions.IChainedConfigurationProvider = &providers.ChainedConfigurationProvider{}
+	var chained extensions.IChainedConfigurationProvider = &confignet.ChainedConfigurationProvider{}
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "shamir/copy-shamir-1.yaml"})
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "shamir/copy-shamir-3.yaml"})
 	confBuilder.AddWithEncrypter(chained, &decrypters.ShamirConfigurationDecrypter{})
@@ -66,7 +66,7 @@ func TestConfigShamir13(t *testing.T) {
 func TestConfigShamir23(t *testing.T) {
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-	var chained extensions.IChainedConfigurationProvider = &providers.ChainedConfigurationProvider{}
+	var chained extensions.IChainedConfigurationProvider = &confignet.ChainedConfigurationProvider{}
 	chained.Add(&providers.JSONConfigurationProvider{FilePath: "shamir/copy-shamir-2.json"})
 	chained.Add(&providers.YamlConfigurationProvider{FilePath: "shamir/copy-shamir-3.yaml"})
 	confBuilder.AddWithEncrypter(chained, &decrypters.ShamirConfigurationDecrypter{})

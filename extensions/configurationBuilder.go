@@ -12,8 +12,7 @@ type IConfigurationBuilder interface {
 	Build() IConfiguration
 	AddDefaultConfigurationProviders()
 	AddDefaultConfigurationProvidersWithBasePath(basePath string)
-	ConfigureConfigurationProviders()
-	ConfigureConfigurationProvidersFromJSONConfig(jsonPath string)
-	ConfigureConfigurationProvidersFromYamlConfig(yamlPath string)
+	ConfigureConfigurationProvidersFromEnv()
+	ConfigureConfigurationProviders(configType string, jsonPath string)
 	ConfigureConfigurationProvidersFromSettings(settings Settings)
 }

@@ -1,4 +1,4 @@
-package providers
+package confignet
 
 import (
 	"log"
@@ -33,6 +33,10 @@ func (provider *ChainedConfigurationProvider) Load(decrypter extensions.IConfigu
 
 	for _, confProvider := range provider.configurationProvidersInfo {
 		confProvider.Provider.Load(confProvider.Decrypter)
+
+		if confProvider.Decrypter != nil {
+			confProvider.Decrypter.Init(&ConfigurationBuilder{})
+		}
 
 		for key, value := range confProvider.Provider.GetData() {
 			internalKey := strings.ReplaceAll(key, confProvider.Provider.GetSeparator(), provider.GetSeparator())
