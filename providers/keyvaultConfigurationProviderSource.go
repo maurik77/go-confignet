@@ -1,15 +1,19 @@
 package providers
 
-import "github.com/maurik77/go-confignet/extensions"
+import (
+	"fmt"
+
+	"github.com/maurik77/go-confignet/extensions"
+)
 
 // KeyvaultConfigurationProviderSource is able to create KeyvaultConfigurationProvider starting from the provider settings
 type KeyvaultConfigurationProviderSource struct {
 }
 
 // NewConfigurationProvider creates KeyvaultConfigurationProvider starting from the provider settings
-func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
+func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
-		panic("KeyvaultConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
+		return nil, fmt.Errorf("KeyvaultConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
 	}
 
 	prefix := settings.GetPropertyValue("prefix", "").(string)
@@ -26,7 +30,7 @@ func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvi
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		BaseURL:      baseURL,
-	}
+	}, nil
 }
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
