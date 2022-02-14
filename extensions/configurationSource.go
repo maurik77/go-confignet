@@ -3,7 +3,7 @@ package extensions
 // IConfigurationSource is the interface of the configuration source
 type IConfigurationSource interface {
 	GetUniqueIdentifier() string
-	NewConfigurationProvider(settings ProviderSettings) IConfigurationProvider
+	NewConfigurationProvider(settings ProviderSettings) (IConfigurationProvider, error)
 }
 
 // Settings contains information usefull to configure the configuration providers
