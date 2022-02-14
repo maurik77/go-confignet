@@ -2,6 +2,11 @@ package providers
 
 import "github.com/maurik77/go-confignet/extensions"
 
+const (
+	// ConfigurationProviderCmdlineIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderCmdlineIdentifier = "cmdline"
+)
+
 // CmdLineConfigurationProviderSource is able to create CmdLineConfigurationProvider starting from the provider settings
 type CmdLineConfigurationProviderSource struct {
 }
