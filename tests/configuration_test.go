@@ -16,25 +16,26 @@ func TestConfigurationProviders(t *testing.T) {
 	myCfg := myConfig{}
 	conf.Bind("config", &myCfg)
 
-	expected := subObj{
-		PropertyString: "TestObj1",
-		PropertyInt:    1,
-		PropertyInt8:   2,
-		PropertyInt16:  3,
-		PropertyInt64:  4,
-		PropertyBool:   true,
+	expected := myConfig{
+		PropertyInt8: 45,
+		Obj1: subObj{
+			PropertyString: "TestObj1",
+			PropertyInt:    1,
+			PropertyInt8:   2,
+			PropertyInt16:  3,
+			PropertyInt64:  4,
+			PropertyBool:   true,
+		},
 	}
 
-	if myCfg.PropertyInt8 != 45 {
-		t.Log("error should be", 45, ", but got", myCfg.PropertyInt8)
-		t.Fail()
-	}
+	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
+	expected.Obj1.Time = timeCfg
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected, subObjConf)
+	validateSubObject(t, expected.Obj1, subObjConf)
 }
 
 func TestConfigurationProvidersWithEnvVars(t *testing.T) {
@@ -42,7 +43,7 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	t.Setenv("config__Obj1__PropertyString", "envTest")
 	t.Setenv("config__Obj1__PropertyInt64", "2377777")
 	t.Setenv("config__Obj1__PropertyInt16", "23")
-	t.Setenv("config__Obj1__Time", "2022-01-19")
+	t.Setenv("config__Obj1__Time", "2022-01-21T10:00:00Z")
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 	confBuilder.AddDefaultConfigurationProviders()
@@ -51,25 +52,24 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	myCfg := myConfig{}
 	conf.Bind("config", &myCfg)
 
-	expected := subObj{
-		PropertyString: "envTest",
-		PropertyInt:    1,
-		PropertyInt8:   2,
-		PropertyInt16:  23,
-		PropertyInt64:  2377777,
-		PropertyBool:   true,
-	}
-	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19")
-	expected.Time = timeCfg
-
-	if myCfg.PropertyInt8 != 45 {
-		t.Log("error should be", 45, ", but got", myCfg.PropertyInt8)
-		t.Fail()
+	expected := myConfig{
+		PropertyInt8: 45,
+		Obj1: subObj{
+			PropertyString: "envTest",
+			PropertyInt:    1,
+			PropertyInt8:   2,
+			PropertyInt16:  23,
+			PropertyInt64:  2377777,
+			PropertyBool:   true,
+		},
 	}
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-21T10:00:00Z")
+	expected.Obj1.Time = timeCfg
+
+	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected, subObjConf)
+	validateSubObject(t, expected.Obj1, subObjConf)
 }

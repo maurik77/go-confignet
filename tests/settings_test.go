@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"time"
+
 	"github.com/maurik77/go-confignet"
 	"github.com/maurik77/go-confignet/extensions"
 
@@ -68,6 +70,9 @@ func validateBinding(config extensions.IConfiguration, t *testing.T, expected *m
 				PropertyInt64:  4,
 				PropertyBool:   true,
 			}}
+
+		timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
+		expected.Obj1.Time = timeCfg
 	}
 
 	validateObject(t, *expected, myCfg)
