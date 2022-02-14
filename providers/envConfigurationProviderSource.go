@@ -1,6 +1,10 @@
 package providers
 
-import "github.com/maurik77/go-confignet/extensions"
+import (
+	"fmt"
+
+	"github.com/maurik77/go-confignet/extensions"
+)
 
 const (
 	// ConfigurationProviderEnvIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
@@ -12,9 +16,9 @@ type EnvConfigurationProviderSource struct {
 }
 
 // NewConfigurationProvider creates EnvConfigurationProvider starting from the provider settings
-func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) extensions.IConfigurationProvider {
+func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
-		panic("EnvConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
+		return nil, fmt.Errorf("EnvConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
 	}
 
 	prefix := settings.GetPropertyValue("prefix", "").(string)
@@ -23,7 +27,7 @@ func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(s
 	return &EnvConfigurationProvider{
 		Prefix:       prefix,
 		RemovePrefix: removePrefix,
-	}
+	}, nil
 }
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file

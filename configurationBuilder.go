@@ -68,7 +68,11 @@ func (conf *ConfigurationBuilder) ConfigureConfigurationProvidersFromSettings(se
 func configureConfigurationProvidersFromSettings(settings []extensions.ProviderSettings, configurationProvidersCollection extensions.IConfigurationProviderCollection) {
 	for _, providerSettings := range settings {
 		if configurationSource, ok := configurationSources[providerSettings.Name]; ok {
-			provider := configurationSource.NewConfigurationProvider(providerSettings)
+			provider, err := configurationSource.NewConfigurationProvider(providerSettings)
+			if err != nil {
+				log.Printf("ConfigurationBuilder: error in creating configuration provider: %s", err.Error())
+				continue
+			}
 
 			if decrypterSource, ok := decrypterSources[providerSettings.Decrypter.Name]; ok {
 				configurationProvidersCollection.AddWithEncrypter(provider, decrypterSource.NewConfigurationDecrypter(providerSettings.Decrypter))
