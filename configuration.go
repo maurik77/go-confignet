@@ -91,40 +91,70 @@ func fillField(field reflect.Value, value string) {
 	case *string:
 		*v = value
 	case *int:
-		*v, _ = strconv.Atoi(value)
+		var err error
+		*v, err = strconv.Atoi(value)
+		if err != nil {
+			log.Printf("Error in parsing int %v, %v", value, err)
+		}
 	case *int8:
 		parsed, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
 			*v = int8(parsed)
+		} else {
+			log.Printf("Error in parsing int8 %v, %v", value, err)
 		}
 	case *int16:
 		parsed, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
 			*v = int16(parsed)
+		} else {
+			log.Printf("Error in parsing int16 %v, %v", value, err)
 		}
 	case *int64:
-		*v, _ = strconv.ParseInt(value, 10, 64)
+		var err error
+		*v, err = strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			log.Printf("Error in parsing int64 %v, %v", value, err)
+		}
 	case *uint:
 		parsed, err := strconv.ParseUint(value, 10, 0)
 		if err == nil {
 			*v = uint(parsed)
+		} else {
+			log.Printf("Error in parsing uint %v, %v", value, err)
 		}
 	case *uint8:
 		parsed, err := strconv.ParseUint(value, 10, 16)
 		if err == nil {
 			*v = uint8(parsed)
+		} else {
+			log.Printf("Error in parsing uint8 %v, %v", value, err)
 		}
 	case *uint16:
 		parsed, err := strconv.ParseInt(value, 10, 16)
 		if err == nil {
 			*v = uint16(parsed)
+		} else {
+			log.Printf("Error in parsing uint16 %v, %v", value, err)
 		}
 	case *uint64:
-		*v, _ = strconv.ParseUint(value, 10, 64)
+		var err error
+		*v, err = strconv.ParseUint(value, 10, 64)
+		if err != nil {
+			log.Printf("Error in parsing uint64 %v, %v", value, err)
+		}
 	case *bool:
-		*v, _ = strconv.ParseBool(value)
+		var err error
+		*v, err = strconv.ParseBool(value)
+		if err != nil {
+			log.Printf("Error in parsing bool %v, %v", value, err)
+		}
 	case *time.Time:
-		*v, _ = time.Parse(time.RFC3339Nano, value)
+		var err error
+		*v, err = time.Parse(time.RFC3339Nano, value)
+		if err != nil {
+			log.Printf("Error in parsing time %v, %v", value, err)
+		}
 	case *[]interface{}:
 		fmt.Println(v)
 	}
