@@ -82,81 +82,28 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 }
 
 func fillField(field reflect.Value, value string) {
-	if field.Kind() == reflect.Slice {
+	switch field.Kind() {
+	case reflect.Slice:
 		log.Printf("Configuration:Field is slice %v in the object %v. Subtype %v", field, field.Addr(), reflect.SliceOf(field.Type()))
-	}
-
-	valueInt := field.Addr().Interface()
-	switch v := valueInt.(type) {
-	case *string:
-		*v = value
-	case *int:
-		var err error
-		*v, err = strconv.Atoi(value)
-		if err != nil {
-			log.Printf("Error in parsing int %v, %v", value, err)
+	case reflect.Ptr:
+		fillField(field.Elem(), value)
+	default:
+		switch field.Interface().(type) {
+		case string:
+			field.SetString(value)
+		case int, int8, int16, int32, int64:
+			intValue, _ := strconv.ParseInt(value, 10, 64)
+			field.SetInt(intValue)
+		case uint, uint8, uint16, uint32, uint64:
+			uintValue, _ := strconv.ParseUint(value, 10, 64)
+			field.SetUint(uintValue)
+		case bool:
+			boolValue, _ := strconv.ParseBool(value)
+			field.SetBool(boolValue)
+		case time.Time:
+			timeValue, _ := time.Parse(time.RFC3339Nano, value)
+			field.Set(reflect.ValueOf(timeValue))
 		}
-	case *int8:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = int8(parsed)
-		} else {
-			log.Printf("Error in parsing int8 %v, %v", value, err)
-		}
-	case *int16:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = int16(parsed)
-		} else {
-			log.Printf("Error in parsing int16 %v, %v", value, err)
-		}
-	case *int64:
-		var err error
-		*v, err = strconv.ParseInt(value, 10, 64)
-		if err != nil {
-			log.Printf("Error in parsing int64 %v, %v", value, err)
-		}
-	case *uint:
-		parsed, err := strconv.ParseUint(value, 10, 0)
-		if err == nil {
-			*v = uint(parsed)
-		} else {
-			log.Printf("Error in parsing uint %v, %v", value, err)
-		}
-	case *uint8:
-		parsed, err := strconv.ParseUint(value, 10, 16)
-		if err == nil {
-			*v = uint8(parsed)
-		} else {
-			log.Printf("Error in parsing uint8 %v, %v", value, err)
-		}
-	case *uint16:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = uint16(parsed)
-		} else {
-			log.Printf("Error in parsing uint16 %v, %v", value, err)
-		}
-	case *uint64:
-		var err error
-		*v, err = strconv.ParseUint(value, 10, 64)
-		if err != nil {
-			log.Printf("Error in parsing uint64 %v, %v", value, err)
-		}
-	case *bool:
-		var err error
-		*v, err = strconv.ParseBool(value)
-		if err != nil {
-			log.Printf("Error in parsing bool %v, %v", value, err)
-		}
-	case *time.Time:
-		var err error
-		*v, err = time.Parse(time.RFC3339Nano, value)
-		if err != nil {
-			log.Printf("Error in parsing time %v, %v", value, err)
-		}
-	case *[]interface{}:
-		fmt.Println(v)
 	}
 }
 
