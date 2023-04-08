@@ -56,7 +56,7 @@ func (conf *ConfigurationBuilder) AddDefaultConfigurationProvidersWithBasePath(b
 	conf.Add(&providers.YamlConfigurationProvider{FilePath: fmt.Sprintf("%v%v", basePath, providers.DefaultYAMLFile)})
 	conf.Add(&providers.EnvConfigurationProvider{})
 	conf.Add(&providers.CmdLineConfigurationProvider{})
-	conf.Add(&providers.KeyvaultConfigurationProvider{})
+	conf.Add(&providers.KeyVaultConfigurationProvider{})
 }
 
 // ConfigureConfigurationProvidersFromSettings adds the default configuration providers

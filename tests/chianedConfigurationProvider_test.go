@@ -15,7 +15,7 @@ import (
 
 func TestGenerateStringParts(t *testing.T) {
 
-	stringByteArray := []byte("Encrypted splitted string")
+	stringByteArray := []byte("Encrypted split string")
 	cryptParts, _ := shamir.Split(stringByteArray, 3, 2)
 
 	for index, crypt := range cryptParts {
@@ -38,7 +38,7 @@ func TestConfigShamir12(t *testing.T) {
 	conf.Bind("config", &myCfg)
 
 	expected := subObj{
-		PropertyString: "Encrypted splitted string",
+		PropertyString: "Encrypted split string",
 	}
 
 	validateSubObject(t, expected, myCfg.Obj1)
@@ -57,7 +57,7 @@ func TestConfigShamir13(t *testing.T) {
 	conf.Bind("config", &myCfg)
 
 	expected := subObj{
-		PropertyString: "Encrypted splitted string",
+		PropertyString: "Encrypted split string",
 	}
 
 	validateSubObject(t, expected, myCfg.Obj1)
@@ -76,7 +76,7 @@ func TestConfigShamir23(t *testing.T) {
 	conf.Bind("config", &myCfg)
 
 	expected := subObj{
-		PropertyString: "Encrypted splitted string",
+		PropertyString: "Encrypted split string",
 	}
 
 	validateSubObject(t, expected, myCfg.Obj1)

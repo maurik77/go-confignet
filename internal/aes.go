@@ -60,10 +60,10 @@ func DecryptBase64ToBytes(encryptedString string, keyString string) ([]byte, err
 	return aesDecrypt(data, keyString)
 }
 
-func pkcs5Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
+func pkcs5Padding(cipherText []byte, blockSize int) []byte {
+	padding := blockSize - len(cipherText)%blockSize
+	padText := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(cipherText, padText...)
 }
 
 func base64ToBytes(encryptedString string) ([]byte, error) {

@@ -12,8 +12,8 @@ import (
 	"github.com/maurik77/go-confignet/extensions"
 )
 
-// KeyvaultConfigurationProvider loads configuration from Azure Key Vault
-type KeyvaultConfigurationProvider struct {
+// KeyVaultConfigurationProvider loads configuration from Azure Key Vault
+type KeyVaultConfigurationProvider struct {
 	Prefix       string
 	RemovePrefix bool
 	TenantID     string
@@ -24,19 +24,19 @@ type KeyvaultConfigurationProvider struct {
 }
 
 // Load configuration from Azure Key Vault
-func (provider *KeyvaultConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
+func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
 	provider.data = make(map[string]string)
 
 	cred, err := provider.getCredential()
 
 	if err != nil {
-		log.Println("KeyvaultConfigurationProvider:Unable to retrieve the token with the provided credentials")
+		log.Println("KeyVaultConfigurationProvider:Unable to retrieve the token with the provided credentials")
 	}
 
 	client, err := azsecrets.NewClient(provider.BaseURL, cred, nil)
 
 	if err != nil {
-		log.Println("KeyvaultConfigurationProvider:Unable to connect to keyvault with the provided credentials and base url", provider.BaseURL)
+		log.Println("KeyVaultConfigurationProvider:Unable to connect to keyvault with the provided credentials and base url", provider.BaseURL)
 	}
 
 	pager := client.ListSecrets(nil)
@@ -55,7 +55,7 @@ func (provider *KeyvaultConfigurationProvider) Load(decrypter extensions.IConfig
 
 			resp, err := client.GetSecret(context.Background(), key, nil)
 			if err != nil {
-				log.Printf("KeyvaultConfigurationProvider:Error retrieving key %v. %v", key, err)
+				log.Printf("KeyVaultConfigurationProvider:Error retrieving key %v. %v", key, err)
 				continue
 			}
 
@@ -66,7 +66,7 @@ func (provider *KeyvaultConfigurationProvider) Load(decrypter extensions.IConfig
 				value, err = decrypter.Decrypt(value)
 
 				if err != nil {
-					log.Printf("KeyvaultConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+					log.Printf("KeyVaultConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 				}
 			}
 
@@ -76,16 +76,16 @@ func (provider *KeyvaultConfigurationProvider) Load(decrypter extensions.IConfig
 }
 
 // GetData provides the loaded data
-func (provider *KeyvaultConfigurationProvider) GetData() map[string]string {
+func (provider *KeyVaultConfigurationProvider) GetData() map[string]string {
 	return provider.data
 }
 
 // GetSeparator provides the separator that it uses to store nested object
-func (provider *KeyvaultConfigurationProvider) GetSeparator() string {
+func (provider *KeyVaultConfigurationProvider) GetSeparator() string {
 	return "--"
 }
 
-func (provider *KeyvaultConfigurationProvider) getCredential() (azcore.TokenCredential, error) {
+func (provider *KeyVaultConfigurationProvider) getCredential() (azcore.TokenCredential, error) {
 	if provider.ClientID != "" && provider.TenantID != "" && provider.ClientSecret != "" && provider.BaseURL != "" {
 		return azidentity.NewClientSecretCredential(provider.TenantID, provider.ClientID, provider.ClientSecret, nil)
 	}
