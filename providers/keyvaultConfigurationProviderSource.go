@@ -6,6 +6,11 @@ import (
 	"github.com/maurik77/go-confignet/extensions"
 )
 
+const (
+	// ConfigurationProviderKeyvaultIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderKeyvaultIdentifier = "keyvault"
+)
+
 // KeyvaultConfigurationProviderSource is able to create KeyvaultConfigurationProvider starting from the provider settings
 type KeyvaultConfigurationProviderSource struct {
 }
@@ -35,5 +40,5 @@ func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvi
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *KeyvaultConfigurationProviderSource) GetUniqueIdentifier() string {
-	return "keyvault"
+	return ConfigurationProviderKeyvaultIdentifier
 }

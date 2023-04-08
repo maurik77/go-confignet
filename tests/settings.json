@@ -45,7 +45,7 @@
                 {
                     "name": "yaml",
                     "properties": {
-                        "filePath": "shamir/copy-shamir-3.json"
+                        "filePath": "shamir/copy-shamir-3.yaml"
                     }
                 }
             ]

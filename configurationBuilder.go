@@ -114,7 +114,12 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromJSONConfig(
 		jsonPath = DefaultConfigFileJSON
 	}
 	var settings extensions.Settings
-	internal.UnmarshalFromFile(jsonPath, &settings, json.Unmarshal)
+	err := internal.UnmarshalFromFile(jsonPath, &settings, json.Unmarshal)
+
+	if err != nil {
+		log.Printf("ConfigurationBuilder::configureConfigurationProvidersFromJSONConfig Error in UnmarshalFromFile %v", err)
+	}
+
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
@@ -124,7 +129,13 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromYamlConfig(
 		yamlPath = DefaultConfigFileYAML
 	}
 	var settings extensions.Settings
-	internal.UnmarshalFromFile(yamlPath, &settings, yaml.Unmarshal)
+
+	err := internal.UnmarshalFromFile(yamlPath, &settings, yaml.Unmarshal)
+
+	if err != nil {
+		log.Printf("ConfigurationBuilder::configureConfigurationProvidersFromYamlConfig Error in UnmarshalFromFile %v", err)
+	}
+
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 

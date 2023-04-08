@@ -6,6 +6,11 @@ import (
 	"github.com/maurik77/go-confignet/extensions"
 )
 
+const (
+	// ConfigurationProviderEnvIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderEnvIdentifier = "env"
+)
+
 // EnvConfigurationProviderSource is able to create EnvConfigurationProvider starting from the provider settings
 type EnvConfigurationProviderSource struct {
 }
@@ -27,5 +32,5 @@ func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(s
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *EnvConfigurationProviderSource) GetUniqueIdentifier() string {
-	return "env"
+	return ConfigurationProviderEnvIdentifier
 }

@@ -2,7 +2,7 @@ package internal
 
 import "fmt"
 
-//LoadProperties loads value map in a slice map[string]string
+// LoadProperties loads value map in a slice map[string]string
 func LoadProperties(separator string, valueMap map[string]interface{}) map[string]string {
 	target := map[string]string{}
 	loadProperties("", separator, valueMap, target)

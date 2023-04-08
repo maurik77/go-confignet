@@ -6,6 +6,11 @@ import (
 	"github.com/maurik77/go-confignet/extensions"
 )
 
+const (
+	// ConfigurationProviderCmdlineIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderCmdlineIdentifier = "cmdline"
+)
+
 // CmdLineConfigurationProviderSource is able to create CmdLineConfigurationProvider starting from the provider settings
 type CmdLineConfigurationProviderSource struct {
 }
@@ -19,7 +24,7 @@ func (providerSource *CmdLineConfigurationProviderSource) NewConfigurationProvid
 	prefix := settings.GetPropertyValue("prefix", "").(string)
 	removePrefix := settings.GetPropertyValue("removePrefix", false).(bool)
 
-	//TODO KeyMapper
+	// TODO KeyMapper
 	return &CmdLineConfigurationProvider{
 		Prefix:       prefix,
 		RemovePrefix: removePrefix,

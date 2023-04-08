@@ -74,59 +74,69 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		return
 	}
 
-	if len(parts) == 1 { // property
-		fillField(nestedField, value)
-	} else { // nested object
+	switch {
+	case len(parts) == 1: // property
+		fillField(nestedField, value, 0)
+	case nestedField.Kind() == reflect.Slice:
+		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
+	default: // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}
 }
 
-func fillField(field reflect.Value, value string) {
-	if field.Kind() == reflect.Slice {
-		log.Printf("Configuration:Field is slice %v in the object %v. Subtype %v", field, field.Addr(), reflect.SliceOf(field.Type()))
+func (conf *Configuration) fillSlice(configInfo extensions.ConfigurationProviderInfo, fieldName string, nestedField reflect.Value, value string, parts ...string) {
+	index, err := strconv.Atoi(parts[1])
+	if err != nil {
+		log.Printf("Configuration:Unable to parse index %v for field %v in the object %v", parts[1], fieldName, nestedField)
+		return
 	}
 
-	valueInt := field.Addr().Interface()
-	switch v := valueInt.(type) {
-	case *string:
-		*v = value
-	case *int:
-		*v, _ = strconv.Atoi(value)
-	case *int8:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = int8(parsed)
+	if nestedField.IsNil() {
+		elemType := nestedField.Type().Elem()
+		elemSlice := reflect.MakeSlice(reflect.SliceOf(elemType), 0, 0)
+		nestedField.Set(elemSlice)
+	}
+
+	if index >= nestedField.Len() {
+		newElements := make([]reflect.Value, index+1-nestedField.Len())
+		for i := range newElements {
+			newElements[i] = reflect.New(nestedField.Type().Elem()).Elem()
 		}
-	case *int16:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = int16(parsed)
+		nestedField.Set(reflect.Append(nestedField, newElements...))
+	}
+
+	if len(parts) == 2 {
+		fillField(nestedField, value, index)
+	} else {
+		conf.fillObject(configInfo, nestedField.Index(index), value, parts[1:]...)
+	}
+}
+
+func fillField(field reflect.Value, value string, index int) {
+	switch field.Kind() {
+	case reflect.Slice:
+		item := field.Index(index)
+		fillField(item, value, -1)
+		return
+	case reflect.Ptr:
+		fillField(field.Elem(), value, -1)
+	default:
+		switch field.Interface().(type) {
+		case string:
+			field.SetString(value)
+		case int, int8, int16, int32, int64:
+			intValue, _ := strconv.ParseInt(value, 10, 64)
+			field.SetInt(intValue)
+		case uint, uint8, uint16, uint32, uint64:
+			uintValue, _ := strconv.ParseUint(value, 10, 64)
+			field.SetUint(uintValue)
+		case bool:
+			boolValue, _ := strconv.ParseBool(value)
+			field.SetBool(boolValue)
+		case time.Time:
+			timeValue, _ := time.Parse(time.RFC3339Nano, value)
+			field.Set(reflect.ValueOf(timeValue))
 		}
-	case *int64:
-		*v, _ = strconv.ParseInt(value, 10, 64)
-	case *uint:
-		parsed, err := strconv.ParseUint(value, 10, 0)
-		if err == nil {
-			*v = uint(parsed)
-		}
-	case *uint8:
-		parsed, err := strconv.ParseUint(value, 10, 16)
-		if err == nil {
-			*v = uint8(parsed)
-		}
-	case *uint16:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = uint16(parsed)
-		}
-	case *uint64:
-		*v, _ = strconv.ParseUint(value, 10, 64)
-	case *bool:
-		*v, _ = strconv.ParseBool(value)
-	case *time.Time:
-		*v, _ = time.Parse(time.RFC3339Nano, value)
-	case *[]interface{}:
-		fmt.Println(v)
 	}
 }
 

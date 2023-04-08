@@ -1,8 +1,10 @@
 # go-confignet
 
-The module is freely inspired by asp.net Configuration framework.
-The responsibility for reading the configuration rests with one or more configuration providers.
-Configuration providers read configuration data from key-value pairs (map[string]string) using a variety of configuration sources:
+The Configuration Framework is a module that provides a way to read configuration data from a variety of sources using configuration providers. This framework is freely inspired by the asp.net Configuration framework.
+
+## Configuration Providers
+
+Configuration providers read configuration data from key-value pairs (map[string]string) using a variety of configuration sources, including:
 
 - [Json Files](#json)
 - [Yaml Files](#yaml)
@@ -12,15 +14,19 @@ Configuration providers read configuration data from key-value pairs (map[string
 - [Splitted Secrets](#splitted-secrets)
 - Custom providers
 
-The usage of the module consists in few simple steps:
+## Usage
 
-- Create the struct which represents the configuration
-- Create a configuration builder
-- Add one or more configuration providers, each one with his configuration
-- Build the configuration to retrieve a configuration struct
-- Invoke the Configuration.Bind function to apply the configuration to your custom object
+Using the Configuration Framework is simple and can be broken down into a few simple steps:
 
-Configuration example
+1. Create a struct that represents the configuration.
+2. Create a configuration builder.
+3. Add one or more configuration providers, each with its own configuration.
+4. Build the configuration to retrieve a configuration struct.
+5. Invoke the Configuration.Bind function to apply the configuration to your custom object.
+
+## Getting Started
+
+Configuration struct example
 
 ```go
 type MyConfig struct {
@@ -35,6 +41,15 @@ type SubObj struct {
     PropertyInt64  int64
     PropertyBool   bool
     Time           time.Time
+    ArrayStr       []string
+    ArrayInt       []int
+    ArrayObj       []subObjItem    
+}
+
+type subObjItem struct {
+    PropertyString string
+    PropertyInt    int
+    PropertyBool   bool
 }
 ```
 
@@ -78,8 +93,8 @@ type IConfigurationProvider interface {
 
 ### Load function
 
-"Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map contains the configuration name, the value of the map the value of the configuration.
-Usually the execution of the function should be safe, it means that should never throw an error. Yaml and Json configuration providers, for instance, write in the standard error stream the reason if they cannot find the file or if is not able to read it correctly.
+The "Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map contains the configuration name, the value of the map the value of the configuration.
+Usually the execution of the function should be safe, it means that should never throw an error. Yaml and Json configuration providers, for instance, write in the standard error stream the reason if they cannot find the file or if they are not able to read it correctly.
 
 Configuration keys:
 

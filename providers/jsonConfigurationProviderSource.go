@@ -6,6 +6,11 @@ import (
 	"github.com/maurik77/go-confignet/extensions"
 )
 
+const (
+	// ConfigurationProviderJSONIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderJSONIdentifier = "json"
+)
+
 // JSONConfigurationProviderSource is able to create JSONConfigurationProvider starting from the provider settings
 type JSONConfigurationProviderSource struct {
 }
@@ -25,5 +30,5 @@ func (providerSource *JSONConfigurationProviderSource) NewConfigurationProvider(
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *JSONConfigurationProviderSource) GetUniqueIdentifier() string {
-	return "json"
+	return ConfigurationProviderJSONIdentifier
 }

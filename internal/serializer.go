@@ -37,6 +37,7 @@ func MarshalToFile(path string, source interface{}, marshal func(v interface{}) 
 		return err
 	}
 
+	// #nosec G306
 	err = ioutil.WriteFile(path, data, 0644)
 
 	return err

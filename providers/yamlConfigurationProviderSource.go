@@ -6,6 +6,11 @@ import (
 	"github.com/maurik77/go-confignet/extensions"
 )
 
+const (
+	// ConfigurationProviderYAMLIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderYAMLIdentifier = "yaml"
+)
+
 // YamlConfigurationProviderSource is able to create YamlConfigurationProvider starting from the provider settings
 type YamlConfigurationProviderSource struct {
 }
@@ -25,5 +30,5 @@ func (providerSource *YamlConfigurationProviderSource) NewConfigurationProvider(
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
 func (providerSource *YamlConfigurationProviderSource) GetUniqueIdentifier() string {
-	return "yaml"
+	return ConfigurationProviderYAMLIdentifier
 }
