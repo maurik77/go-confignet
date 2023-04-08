@@ -9,11 +9,12 @@ import (
 
 // ShamirConfigurationDecrypter .
 type ShamirConfigurationDecrypter struct {
+	configurationBuilder extensions.IConfigurationBuilder
 }
 
 // Init the decrypter
 func (decrypter *ShamirConfigurationDecrypter) Init(configurationBuilder extensions.IConfigurationBuilder) {
-
+	decrypter.configurationBuilder = configurationBuilder
 }
 
 // Decrypt decrypts the input encrypted string using aes256 algorithm

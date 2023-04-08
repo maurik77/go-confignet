@@ -92,7 +92,7 @@ func validateSubObject(t *testing.T, expected subObj, result subObj) {
 	}
 }
 
-func getJsonExpectedValue() myConfig {
+func getJSONExpectedValue() myConfig {
 	expected := myConfig{
 		PropertyInt8: 45,
 		Obj1: subObj{

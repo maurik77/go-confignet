@@ -70,7 +70,7 @@ func (provider *KeyvaultConfigurationProvider) Load(decrypter extensions.IConfig
 				}
 			}
 
-			provider.data[key] = *resp.Value
+			provider.data[key] = value
 		}
 	}
 }

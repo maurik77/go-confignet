@@ -74,11 +74,12 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		return
 	}
 
-	if len(parts) == 1 { // property
+	switch {
+	case len(parts) == 1: // property
 		fillField(nestedField, value, 0)
-	} else if nestedField.Kind() == reflect.Slice {
+	case nestedField.Kind() == reflect.Slice:
 		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
-	} else { // nested object
+	default: // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}
 }

@@ -1,0 +1,26 @@
+---
+version: "3"
+
+# go install github.com/go-task/task/v3/cmd/task@latest
+
+vars:
+  GIT_ROOT:
+    sh: git rev-parse --show-toplevel
+
+tasks:
+  build:
+    desc: Build with linters
+    cmds:
+    - golangci-lint --build-tags integration --timeout=3m -E revive -E gocritic -E gosec run ./...
+    - go build --tags integration .
+    silent: false
+  test:
+    desc: Run tests
+    cmds:
+    - go test --coverprofile cover.out ./...
+    - go tool cover -html=cover.out
+    silent: false     
+  default:
+    cmds:
+      - task -l
+    silent: true

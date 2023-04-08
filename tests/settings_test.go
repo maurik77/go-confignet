@@ -60,7 +60,7 @@ func validateBinding(config extensions.IConfiguration, t *testing.T, expected *m
 	config.Bind("config", &myCfg)
 
 	if expected == nil {
-		jsonFulConfig := getJsonExpectedValue()
+		jsonFulConfig := getJSONExpectedValue()
 		expected = &jsonFulConfig
 		expected.PropertyInt8 = 45
 		expected.Obj1.PropertyString = "Encrypted splitted string"

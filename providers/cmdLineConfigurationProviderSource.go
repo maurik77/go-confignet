@@ -24,7 +24,7 @@ func (providerSource *CmdLineConfigurationProviderSource) NewConfigurationProvid
 	prefix := settings.GetPropertyValue("prefix", "").(string)
 	removePrefix := settings.GetPropertyValue("removePrefix", false).(bool)
 
-	//TODO KeyMapper
+	// TODO KeyMapper
 	return &CmdLineConfigurationProvider{
 		Prefix:       prefix,
 		RemovePrefix: removePrefix,

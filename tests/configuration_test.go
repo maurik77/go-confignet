@@ -16,7 +16,7 @@ func TestConfigurationProviders(t *testing.T) {
 	myCfg := myConfig{}
 	conf.Bind("config", &myCfg)
 
-	expected := getJsonExpectedValue()
+	expected := getJSONExpectedValue()
 
 	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
 	expected.Obj1.Time = timeCfg
@@ -44,7 +44,7 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	myCfg := myConfig{}
 	conf.Bind("config", &myCfg)
 
-	expected := getJsonExpectedValue()
+	expected := getJSONExpectedValue()
 
 	expected.Obj1.PropertyString = "envTest"
 	expected.Obj1.PropertyInt64 = 2377777

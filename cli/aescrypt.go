@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 
 	"github.com/maurik77/go-confignet/internal"
 	"gopkg.in/yaml.v2"
@@ -40,10 +41,15 @@ func main() {
 	if err != nil {
 		return
 	}
+
 	result := make(map[string]interface{})
 	encryptProperties(secret, payload, &result)
 
-	internal.MarshalToFile(destination, result, marshal)
+	err = internal.MarshalToFile(destination, result, marshal)
+
+	if err != nil {
+		log.Printf("Error in MarshalToFile %v", err)
+	}
 }
 
 func encryptProperties(secret string, source map[string]interface{}, destination *map[string]interface{}) {
