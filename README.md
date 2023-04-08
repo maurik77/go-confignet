@@ -267,4 +267,46 @@ Map:
 
 ### Command line arguments
 
+CmdConfigurationProvider loads configuration from the command line arguments. It uses "-" (hyphen) as separator for hierarchical configuration. It exposes the following properties that change the behavior of the provider.
+
+```go
+// EnvConfigurationProvider loads configuration from environment variables
+type CmdLineConfigurationProvider struct {
+ Prefix       string
+ RemovePrefix bool
+}
+```
+
+Properties:
+
+- Prefix (optional): if set only the environment variables starting with the Prefix value will be loaded. E.g.:
+  - Prefix value: "secrets"
+  - Command line arguments:
+    - secrets-cred-password=pwd123
+    - cred-username=test1
+  - Map: only secrets-cred-password is loaded
+    - Key: secrets-cred-password
+    - Value: pwd123
+- RemovePrefix (optional): It is ignored if Prefix is not set. If set to true the environment variable will be added to the map removing from the key the prefix value and the first separator. E.g. using as example the previous settings:
+  - RemovePrefix: true
+  - Map: only secrets-cred-password is loaded
+    - Key: cred-password
+    - Value: pwd123
+
+Example:
+
+```bash
+# Command line arguments
+[Exe path] -config-PropertyInt8 45 -config-Obj1-PropertyString TestObj1 -config-Obj1-PropertyInt 1 - config-Obj1-PropertyBool true
+```
+
+Map:
+
+| Map Key                              | Map Value  |
+| ------------------------------------ | ---------- |
+| **config-PropertyInt8**              | "45"       |
+| **config-Obj1-PropertyString**       | "TestObj1" |
+| **config-Obj1-PropertyInt**          | "1"        |
+| **config-Obj1-PropertyBool**         | "true"     |
+
 ### Azure Key Vault
