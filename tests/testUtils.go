@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"reflect"
 	"testing"
 	"time"
 )
@@ -20,6 +21,13 @@ type subObj struct {
 	Time           time.Time
 	ArrayStr       []string
 	ArrayInt       []int
+	ArrayObj       []subObjItem
+}
+
+type subObjItem struct {
+	PropertyString string
+	PropertyInt    int
+	PropertyBool   bool
 }
 
 func validateObject(t *testing.T, expected myConfig, result myConfig) {
@@ -67,4 +75,48 @@ func validateSubObject(t *testing.T, expected subObj, result subObj) {
 		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.Time, result.Time)
 		t.Fail()
 	}
+
+	if !reflect.DeepEqual(result.ArrayInt, expected.ArrayInt) {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayInt, result.ArrayInt)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(result.ArrayStr, expected.ArrayStr) {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayStr, result.ArrayStr)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(result.ArrayObj, expected.ArrayObj) {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayObj, result.ArrayObj)
+		t.Fail()
+	}
+}
+
+func getJsonExpectedValue() myConfig {
+	expected := myConfig{
+		PropertyInt8: 45,
+		Obj1: subObj{
+			PropertyString: "TestObj1",
+			PropertyInt:    1,
+			PropertyInt8:   2,
+			PropertyInt16:  3,
+			PropertyInt64:  4,
+			PropertyBool:   true,
+			ArrayStr:       []string{"Test", "Test2"},
+			ArrayInt:       []int{1, 2},
+			ArrayObj: []subObjItem{
+				{
+					PropertyString: "TestArrObj1",
+					PropertyInt:    1,
+					PropertyBool:   true,
+				},
+				{
+					PropertyString: "TestArrObj2",
+					PropertyInt:    2,
+					PropertyBool:   false,
+				},
+			},
+		},
+	}
+	return expected
 }

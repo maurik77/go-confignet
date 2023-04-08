@@ -75,18 +75,50 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 	}
 
 	if len(parts) == 1 { // property
-		fillField(nestedField, value)
+		fillField(nestedField, value, 0)
+	} else if nestedField.Kind() == reflect.Slice {
+		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
 	} else { // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}
 }
 
-func fillField(field reflect.Value, value string) {
+func (conf *Configuration) fillSlice(configInfo extensions.ConfigurationProviderInfo, fieldName string, nestedField reflect.Value, value string, parts ...string) {
+	index, err := strconv.Atoi(parts[1])
+	if err != nil {
+		log.Printf("Configuration:Unable to parse index %v for field %v in the object %v", parts[1], fieldName, nestedField)
+		return
+	}
+
+	if nestedField.IsNil() {
+		elemType := nestedField.Type().Elem()
+		elemSlice := reflect.MakeSlice(reflect.SliceOf(elemType), 0, 0)
+		nestedField.Set(elemSlice)
+	}
+
+	if index >= nestedField.Len() {
+		newElements := make([]reflect.Value, index+1-nestedField.Len())
+		for i := range newElements {
+			newElements[i] = reflect.New(nestedField.Type().Elem()).Elem()
+		}
+		nestedField.Set(reflect.Append(nestedField, newElements...))
+	}
+
+	if len(parts) == 2 {
+		fillField(nestedField, value, index)
+	} else {
+		conf.fillObject(configInfo, nestedField.Index(index), value, parts[1:]...)
+	}
+}
+
+func fillField(field reflect.Value, value string, index int) {
 	switch field.Kind() {
 	case reflect.Slice:
-		log.Printf("Configuration:Field is slice %v in the object %v. Subtype %v", field, field.Addr(), reflect.SliceOf(field.Type()))
+		item := field.Index(index)
+		fillField(item, value, -1)
+		return
 	case reflect.Ptr:
-		fillField(field.Elem(), value)
+		fillField(field.Elem(), value, -1)
 	default:
 		switch field.Interface().(type) {
 		case string:

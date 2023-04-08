@@ -60,16 +60,15 @@ func validateBinding(config extensions.IConfiguration, t *testing.T, expected *m
 	config.Bind("config", &myCfg)
 
 	if expected == nil {
-		expected = &myConfig{
-			PropertyInt8: 45,
-			Obj1: subObj{
-				PropertyString: "Encrypted splitted string",
-				PropertyInt:    1,
-				PropertyInt8:   2,
-				PropertyInt16:  3,
-				PropertyInt64:  4,
-				PropertyBool:   true,
-			}}
+		jsonFulConfig := getJsonExpectedValue()
+		expected = &jsonFulConfig
+		expected.PropertyInt8 = 45
+		expected.Obj1.PropertyString = "Encrypted splitted string"
+		expected.Obj1.PropertyInt = 1
+		expected.Obj1.PropertyInt8 = 2
+		expected.Obj1.PropertyInt16 = 3
+		expected.Obj1.PropertyInt64 = 4
+		expected.Obj1.PropertyBool = true
 
 		timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
 		expected.Obj1.Time = timeCfg
