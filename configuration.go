@@ -74,89 +74,69 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		return
 	}
 
-	if len(parts) == 1 { // property
-		fillField(nestedField, value)
-	} else { // nested object
+	switch {
+	case len(parts) == 1: // property
+		fillField(nestedField, value, 0)
+	case nestedField.Kind() == reflect.Slice:
+		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
+	default: // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}
 }
 
-func fillField(field reflect.Value, value string) {
-	if field.Kind() == reflect.Slice {
-		log.Printf("Configuration:Field is slice %v in the object %v. Subtype %v", field, field.Addr(), reflect.SliceOf(field.Type()))
+func (conf *Configuration) fillSlice(configInfo extensions.ConfigurationProviderInfo, fieldName string, nestedField reflect.Value, value string, parts ...string) {
+	index, err := strconv.Atoi(parts[1])
+	if err != nil {
+		log.Printf("Configuration:Unable to parse index %v for field %v in the object %v", parts[1], fieldName, nestedField)
+		return
 	}
 
-	valueInt := field.Addr().Interface()
-	switch v := valueInt.(type) {
-	case *string:
-		*v = value
-	case *int:
-		var err error
-		*v, err = strconv.Atoi(value)
-		if err != nil {
-			log.Printf("Error in parsing int %v, %v", value, err)
+	if nestedField.IsNil() {
+		elemType := nestedField.Type().Elem()
+		elemSlice := reflect.MakeSlice(reflect.SliceOf(elemType), 0, 0)
+		nestedField.Set(elemSlice)
+	}
+
+	if index >= nestedField.Len() {
+		newElements := make([]reflect.Value, index+1-nestedField.Len())
+		for i := range newElements {
+			newElements[i] = reflect.New(nestedField.Type().Elem()).Elem()
 		}
-	case *int8:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = int8(parsed)
-		} else {
-			log.Printf("Error in parsing int8 %v, %v", value, err)
+		nestedField.Set(reflect.Append(nestedField, newElements...))
+	}
+
+	if len(parts) == 2 {
+		fillField(nestedField, value, index)
+	} else {
+		conf.fillObject(configInfo, nestedField.Index(index), value, parts[1:]...)
+	}
+}
+
+func fillField(field reflect.Value, value string, index int) {
+	switch field.Kind() {
+	case reflect.Slice:
+		item := field.Index(index)
+		fillField(item, value, -1)
+		return
+	case reflect.Ptr:
+		fillField(field.Elem(), value, -1)
+	default:
+		switch field.Interface().(type) {
+		case string:
+			field.SetString(value)
+		case int, int8, int16, int32, int64:
+			intValue, _ := strconv.ParseInt(value, 10, 64)
+			field.SetInt(intValue)
+		case uint, uint8, uint16, uint32, uint64:
+			uintValue, _ := strconv.ParseUint(value, 10, 64)
+			field.SetUint(uintValue)
+		case bool:
+			boolValue, _ := strconv.ParseBool(value)
+			field.SetBool(boolValue)
+		case time.Time:
+			timeValue, _ := time.Parse(time.RFC3339Nano, value)
+			field.Set(reflect.ValueOf(timeValue))
 		}
-	case *int16:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = int16(parsed)
-		} else {
-			log.Printf("Error in parsing int16 %v, %v", value, err)
-		}
-	case *int64:
-		var err error
-		*v, err = strconv.ParseInt(value, 10, 64)
-		if err != nil {
-			log.Printf("Error in parsing int64 %v, %v", value, err)
-		}
-	case *uint:
-		parsed, err := strconv.ParseUint(value, 10, 0)
-		if err == nil {
-			*v = uint(parsed)
-		} else {
-			log.Printf("Error in parsing uint %v, %v", value, err)
-		}
-	case *uint8:
-		parsed, err := strconv.ParseUint(value, 10, 16)
-		if err == nil {
-			*v = uint8(parsed)
-		} else {
-			log.Printf("Error in parsing uint8 %v, %v", value, err)
-		}
-	case *uint16:
-		parsed, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			*v = uint16(parsed)
-		} else {
-			log.Printf("Error in parsing uint16 %v, %v", value, err)
-		}
-	case *uint64:
-		var err error
-		*v, err = strconv.ParseUint(value, 10, 64)
-		if err != nil {
-			log.Printf("Error in parsing uint64 %v, %v", value, err)
-		}
-	case *bool:
-		var err error
-		*v, err = strconv.ParseBool(value)
-		if err != nil {
-			log.Printf("Error in parsing bool %v, %v", value, err)
-		}
-	case *time.Time:
-		var err error
-		*v, err = time.Parse(time.RFC3339Nano, value)
-		if err != nil {
-			log.Printf("Error in parsing time %v, %v", value, err)
-		}
-	case *[]interface{}:
-		fmt.Println(v)
 	}
 }
 

@@ -13,7 +13,7 @@ var (
 	decrypterSources     = make(map[string]extensions.IConfigurationDecrypterSource)
 )
 
-//RegisterDecrypterSource registers a new decrypter source
+// RegisterDecrypterSource registers a new decrypter source
 func RegisterDecrypterSource(decrypterSource extensions.IConfigurationDecrypterSource) {
 	if decrypterSource == nil {
 		panic("confignet: Register decrypter source is nil")
@@ -28,7 +28,7 @@ func RegisterDecrypterSource(decrypterSource extensions.IConfigurationDecrypterS
 	decrypterSources[uniqueIdentifier] = decrypterSource
 }
 
-//RegisterConfigurationSource registers a new configuration source
+// RegisterConfigurationSource registers a new configuration source
 func RegisterConfigurationSource(configurationSource extensions.IConfigurationSource) {
 	if configurationSource == nil {
 		panic("confignet: Register configuration source is nil")
