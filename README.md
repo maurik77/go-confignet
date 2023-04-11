@@ -297,7 +297,7 @@ Example:
 
 ```bash
 # Command line arguments
-[Exe path] -config-PropertyInt8 45 -config-Obj1-PropertyString TestObj1 -config-Obj1-PropertyInt 1 - config-Obj1-PropertyBool true
+[Exe path] -config-PropertyInt8 45 -config-Obj1-PropertyString TestObj1 -config-Obj1-PropertyInt 1 -config-Obj1-PropertyBool true
 ```
 
 Map:
