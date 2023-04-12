@@ -19,7 +19,7 @@ func TestConfigureConfigurationProvidersSecret(t *testing.T) {
 
 	expected := myConfig{
 		PropertyInt8: &pointerInt8,
-		Obj1: subObj{
+		Obj1: &subObj{
 			PropertyString: "TestObj1",
 			PropertyInt:    1,
 			PropertyInt8:   2,

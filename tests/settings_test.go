@@ -80,5 +80,5 @@ func validateBinding(config extensions.IConfiguration, t *testing.T, expected *m
 
 	subObjConf := subObj{}
 	config.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected.Obj1, subObjConf)
+	validateSubObject(t, *expected.Obj1, subObjConf)
 }

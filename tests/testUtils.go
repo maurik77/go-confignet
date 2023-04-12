@@ -7,7 +7,7 @@ import (
 )
 
 type myConfig struct {
-	Obj1         subObj
+	Obj1         *subObj
 	PropertyInt8 *int8
 }
 
@@ -39,7 +39,7 @@ func validateObject(t *testing.T, expected myConfig, result myConfig) {
 		t.Fail()
 	}
 
-	validateSubObject(t, expected.Obj1, result.Obj1)
+	validateSubObject(t, *expected.Obj1, *result.Obj1)
 }
 
 func validateSubObject(t *testing.T, expected subObj, result subObj) {
@@ -98,7 +98,7 @@ func getJSONExpectedValue() myConfig {
 	var pointerInt8 int8 = 45
 	expected := myConfig{
 		PropertyInt8: &pointerInt8,
-		Obj1: subObj{
+		Obj1: &subObj{
 			PropertyString: "TestObj1",
 			PropertyInt:    1,
 			PropertyInt8:   2,

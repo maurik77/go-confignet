@@ -62,14 +62,9 @@ func (conf *Configuration) bindProps(configInfo extensions.ConfigurationProvider
 
 func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProviderInfo, parent reflect.Value, value string, parts ...string) {
 	fieldName := parts[0]
-	nestedField := parent
-	_, err := strconv.Atoi(fieldName)
+	nestedField := parent.FieldByName(fieldName)
 
-	if err != nil {
-		nestedField = parent.FieldByName(fieldName)
-	}
-
-	if nestedField == (reflect.Value{}) {
+	if !nestedField.IsValid() {
 		log.Printf("Configuration:Unable to find field %v in the object %v", fieldName, nestedField)
 		return
 	}
@@ -79,6 +74,13 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		fillField(nestedField, value, 0)
 	case nestedField.Kind() == reflect.Slice:
 		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
+	case nestedField.Kind() == reflect.Ptr:
+		if nestedField.IsNil() {
+			defaultValue := reflect.New(nestedField.Type().Elem()).Elem()
+			nestedField.Set(defaultValue.Addr())
+		}
+		nestedField = nestedField.Elem()
+		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	default: // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}

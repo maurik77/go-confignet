@@ -41,7 +41,7 @@ func TestConfigShamir12(t *testing.T) {
 		PropertyString: "Encrypted splitted string",
 	}
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	validateSubObject(t, expected, *myCfg.Obj1)
 }
 
 func TestConfigShamir13(t *testing.T) {
@@ -60,7 +60,7 @@ func TestConfigShamir13(t *testing.T) {
 		PropertyString: "Encrypted splitted string",
 	}
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	validateSubObject(t, expected, *myCfg.Obj1)
 }
 
 func TestConfigShamir23(t *testing.T) {
@@ -79,5 +79,5 @@ func TestConfigShamir23(t *testing.T) {
 		PropertyString: "Encrypted splitted string",
 	}
 
-	validateSubObject(t, expected, myCfg.Obj1)
+	validateSubObject(t, expected, *myCfg.Obj1)
 }

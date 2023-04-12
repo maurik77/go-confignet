@@ -25,7 +25,7 @@ func TestConfigurationProviders(t *testing.T) {
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected.Obj1, subObjConf)
+	validateSubObject(t, *expected.Obj1, subObjConf)
 }
 
 func TestConfigurationProvidersWithEnvVars(t *testing.T) {
@@ -59,5 +59,5 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected.Obj1, subObjConf)
+	validateSubObject(t, *expected.Obj1, subObjConf)
 }
