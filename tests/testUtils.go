@@ -8,7 +8,7 @@ import (
 
 type myConfig struct {
 	Obj1         subObj
-	PropertyInt8 int8
+	PropertyInt8 *int8
 }
 
 type subObj struct {
@@ -22,6 +22,8 @@ type subObj struct {
 	ArrayStr       []string
 	ArrayInt       []int
 	ArrayObj       []subObjItem
+	MapStr         map[string]string
+	MapInt         map[string]int
 }
 
 type subObjItem struct {
@@ -32,7 +34,7 @@ type subObjItem struct {
 
 func validateObject(t *testing.T, expected myConfig, result myConfig) {
 
-	if result.PropertyInt8 != expected.PropertyInt8 {
+	if *result.PropertyInt8 != *expected.PropertyInt8 {
 		t.Logf("validateObject::error should be '%v', but got '%v'", expected.PropertyInt8, result.PropertyInt8)
 		t.Fail()
 	}
@@ -93,8 +95,9 @@ func validateSubObject(t *testing.T, expected subObj, result subObj) {
 }
 
 func getJSONExpectedValue() myConfig {
+	var pointerInt8 int8 = 45
 	expected := myConfig{
-		PropertyInt8: 45,
+		PropertyInt8: &pointerInt8,
 		Obj1: subObj{
 			PropertyString: "TestObj1",
 			PropertyInt:    1,

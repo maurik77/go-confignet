@@ -119,6 +119,10 @@ func fillField(field reflect.Value, value string, index int) {
 		fillField(item, value, -1)
 		return
 	case reflect.Ptr:
+		if field.IsNil() {
+			defaultValue := reflect.New(field.Type().Elem()).Elem()
+			field.Set(defaultValue.Addr())
+		}
 		fillField(field.Elem(), value, -1)
 	default:
 		switch field.Interface().(type) {
