@@ -71,6 +71,14 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		return
 	}
 
+	if nestedField.Kind() == reflect.Ptr {
+		if nestedField.IsNil() {
+			defaultValue := reflect.New(nestedField.Type().Elem()).Elem()
+			nestedField.Set(defaultValue.Addr())
+		}
+		nestedField = nestedField.Elem()
+	}
+
 	switch {
 	case len(parts) == 1: // property
 		fillField(nestedField, value, 0)
@@ -78,13 +86,6 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
 	case nestedField.Kind() == reflect.Array:
 		conf.fillArray(configInfo, fieldName, nestedField, value, parts...)
-	case nestedField.Kind() == reflect.Ptr:
-		if nestedField.IsNil() {
-			defaultValue := reflect.New(nestedField.Type().Elem()).Elem()
-			nestedField.Set(defaultValue.Addr())
-		}
-		nestedField = nestedField.Elem()
-		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	default: // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}

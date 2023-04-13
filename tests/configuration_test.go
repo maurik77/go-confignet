@@ -13,13 +13,13 @@ func TestConfigurationProviders(t *testing.T) {
 	confBuilder.AddDefaultConfigurationProviders()
 	conf := confBuilder.Build()
 
-	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
-
 	expected := getJSONExpectedValue()
 
 	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
 	expected.Obj1.Time = timeCfg
+
+	myCfg := myConfig{}
+	conf.Bind("config", &myCfg)
 
 	validateObject(t, expected, myCfg)
 
