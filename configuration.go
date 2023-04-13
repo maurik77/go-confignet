@@ -62,7 +62,12 @@ func (conf *Configuration) bindProps(configInfo extensions.ConfigurationProvider
 
 func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProviderInfo, parent reflect.Value, value string, parts ...string) {
 	fieldName := parts[0]
-	nestedField := parent.FieldByName(fieldName)
+	nestedField := parent
+	_, err := strconv.Atoi(fieldName)
+
+	if err != nil {
+		nestedField = parent.FieldByName(fieldName)
+	}
 
 	if !nestedField.IsValid() {
 		log.Printf("Configuration:Unable to find field %v in the object %v", fieldName, nestedField)
