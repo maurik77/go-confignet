@@ -165,17 +165,29 @@ func fillField(field reflect.Value, value string, index int) {
 		case string:
 			field.SetString(value)
 		case int, int8, int16, int32, int64:
-			intValue, _ := strconv.ParseInt(value, 10, 64)
-			field.SetInt(intValue)
+			if intValue, err := strconv.ParseInt(value, 10, 64); err == nil {
+				field.SetInt(intValue)
+			} else {
+				log.Printf("Configuration:Unable to parse Int the value %v", value)
+			}
 		case uint, uint8, uint16, uint32, uint64:
-			uintValue, _ := strconv.ParseUint(value, 10, 64)
-			field.SetUint(uintValue)
+			if uintValue, err := strconv.ParseUint(value, 10, 64); err == nil {
+				field.SetUint(uintValue)
+			} else {
+				log.Printf("Configuration:Unable to parse Uint the value %v", value)
+			}
 		case bool:
-			boolValue, _ := strconv.ParseBool(value)
-			field.SetBool(boolValue)
+			if boolValue, err := strconv.ParseBool(value); err == nil {
+				field.SetBool(boolValue)
+			} else {
+				log.Printf("Configuration:Unable to parse Bool the value %v", value)
+			}
 		case time.Time:
-			timeValue, _ := time.Parse(time.RFC3339Nano, value)
-			field.Set(reflect.ValueOf(timeValue))
+			if timeValue, err := time.Parse(time.RFC3339Nano, value); err == nil {
+				field.Set(reflect.ValueOf(timeValue))
+			} else {
+				log.Printf("Configuration:Unable to parse Time (format: %v) the value %v", time.RFC3339Nano, value)
+			}
 		}
 	}
 }
