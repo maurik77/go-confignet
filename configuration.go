@@ -61,13 +61,10 @@ func (conf *Configuration) bindProps(configInfo extensions.ConfigurationProvider
 }
 
 func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProviderInfo, parent reflect.Value, value string, parts ...string) {
-	fieldName := parts[0]
-	nestedField := parent
-	_, err := strconv.Atoi(fieldName)
+	// log.Printf("fillObject -> parts: %v, value: %v", parts, value)
 
-	if err != nil {
-		nestedField = parent.FieldByName(fieldName)
-	}
+	fieldName := parts[0]
+	nestedField := parent.FieldByName(fieldName)
 
 	if !nestedField.IsValid() {
 		log.Printf("Configuration:Unable to find field %v in the object %v", fieldName, nestedField)
@@ -79,6 +76,8 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		fillField(nestedField, value, 0)
 	case nestedField.Kind() == reflect.Slice:
 		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
+	case nestedField.Kind() == reflect.Array:
+		conf.fillArray(configInfo, fieldName, nestedField, value, parts...)
 	case nestedField.Kind() == reflect.Ptr:
 		if nestedField.IsNil() {
 			defaultValue := reflect.New(nestedField.Type().Elem()).Elem()
@@ -91,7 +90,30 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 	}
 }
 
+func (conf *Configuration) fillArray(configInfo extensions.ConfigurationProviderInfo, fieldName string, nestedField reflect.Value, value string, parts ...string) {
+	// log.Printf("fillArray -> fieldName: %v, parts: %v, value: %v", fieldName, parts, value)
+
+	index, err := strconv.Atoi(parts[1])
+	if err != nil {
+		log.Printf("Configuration:Unable to parse index %v for field %v in the object %v", parts[1], fieldName, nestedField)
+		return
+	}
+
+	if index >= nestedField.Len() {
+		log.Printf("Configuration:Unable to assign value %v to the field %v with index %v because is out of range. (Array length  %v)", value, fieldName, index, nestedField.Len())
+		return
+	}
+
+	if len(parts) == 2 {
+		fillField(nestedField, value, index)
+	} else {
+		conf.fillObject(configInfo, nestedField.Index(index), value, parts[2:]...)
+	}
+}
+
 func (conf *Configuration) fillSlice(configInfo extensions.ConfigurationProviderInfo, fieldName string, nestedField reflect.Value, value string, parts ...string) {
+	// log.Printf("fillSlice -> fieldName: %v, parts: %v, value: %v", fieldName, parts, value)
+
 	index, err := strconv.Atoi(parts[1])
 	if err != nil {
 		log.Printf("Configuration:Unable to parse index %v for field %v in the object %v", parts[1], fieldName, nestedField)
@@ -115,12 +137,18 @@ func (conf *Configuration) fillSlice(configInfo extensions.ConfigurationProvider
 	if len(parts) == 2 {
 		fillField(nestedField, value, index)
 	} else {
-		conf.fillObject(configInfo, nestedField.Index(index), value, parts[1:]...)
+		conf.fillObject(configInfo, nestedField.Index(index), value, parts[2:]...)
 	}
 }
 
 func fillField(field reflect.Value, value string, index int) {
+	// log.Printf("fillField -> index: %v, value: %v", index, value)
+
 	switch field.Kind() {
+	case reflect.Array:
+		item := field.Index(index)
+		fillField(item, value, -1)
+		return
 	case reflect.Slice:
 		item := field.Index(index)
 		fillField(item, value, -1)

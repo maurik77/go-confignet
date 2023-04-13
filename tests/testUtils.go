@@ -20,7 +20,7 @@ type subObj struct {
 	PropertyBool   bool
 	Time           time.Time
 	ArrayStr       []string
-	ArrayInt       []int
+	ArrayInt       [3]int
 	ArrayObj       []subObjItem
 	MapStr         map[string]string
 	MapInt         map[string]int
@@ -106,7 +106,7 @@ func getJSONExpectedValue() myConfig {
 			PropertyInt64:  4,
 			PropertyBool:   true,
 			ArrayStr:       []string{"Test", "Test2"},
-			ArrayInt:       []int{1, 2},
+			ArrayInt:       [3]int{1, 2},
 			ArrayObj: []subObjItem{
 				{
 					PropertyString: "TestArrObj1",

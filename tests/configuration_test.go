@@ -35,7 +35,9 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	t.Setenv("config__Obj1__PropertyInt16", "23")
 	t.Setenv("config__Obj1__Time", "2022-01-21T10:00:00Z")
 	t.Setenv("config__Obj1__ArrayObj__0__PropertyString", "Modified")
+	t.Setenv("config__Obj1__ArrayObj__0__PropertyString", "Modified")
 	t.Setenv("config__Obj1__ArrayObj__2__PropertyString", "Created")
+	t.Setenv("config__Obj1__ArrayInt__4", "5")
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 	confBuilder.AddDefaultConfigurationProviders()
