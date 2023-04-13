@@ -63,6 +63,11 @@ func (conf *Configuration) bindProps(configInfo extensions.ConfigurationProvider
 func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProviderInfo, parent reflect.Value, value string, parts ...string) {
 	// log.Printf("fillObject -> parts: %v, value: %v", parts, value)
 
+	if parent.Kind() != reflect.Struct {
+		log.Printf("Configuration:Parent is not a valid struct %v. Parts %v", parent, parts)
+		return
+	}
+
 	fieldName := parts[0]
 	nestedField := parent.FieldByName(fieldName)
 
@@ -86,6 +91,8 @@ func (conf *Configuration) fillObject(configInfo extensions.ConfigurationProvide
 		conf.fillSlice(configInfo, fieldName, nestedField, value, parts...)
 	case nestedField.Kind() == reflect.Array:
 		conf.fillArray(configInfo, fieldName, nestedField, value, parts...)
+	// case nestedField.Kind() == reflect.Map:
+	// 	log.Printf("fillObject::Map: parts %v value %v", parts, value)
 	default: // nested object
 		conf.fillObject(configInfo, nestedField, value, parts[1:]...)
 	}

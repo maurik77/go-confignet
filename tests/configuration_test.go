@@ -15,9 +15,6 @@ func TestConfigurationProviders(t *testing.T) {
 
 	expected := getJSONExpectedValue()
 
-	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
-	expected.Obj1.Time = timeCfg
-
 	myCfg := myConfig{}
 	conf.Bind("config", &myCfg)
 

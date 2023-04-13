@@ -23,7 +23,7 @@ type subObj struct {
 	ArrayInt       *[3]int
 	ArrayObj       []subObjItem
 	MapStr         map[string]string
-	MapInt         map[string]int
+	MapInt         map[int]int
 }
 
 type subObjItem struct {
@@ -119,7 +119,12 @@ func getJSONExpectedValue() myConfig {
 					PropertyBool:   false,
 				},
 			},
+			MapStr: map[string]string{"Key1": "Value1", "Key2": "Value2"},
+			MapInt: map[int]int{1: 1, 2: 2},
 		},
 	}
+
+	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
+	expected.Obj1.Time = timeCfg
 	return expected
 }
