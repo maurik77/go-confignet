@@ -13,19 +13,19 @@ func TestConfigurationProviders(t *testing.T) {
 	confBuilder.AddDefaultConfigurationProviders()
 	conf := confBuilder.Build()
 
-	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
-
 	expected := getJSONExpectedValue()
 
 	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
 	expected.Obj1.Time = timeCfg
 
+	myCfg := myConfig{}
+	conf.Bind("config", &myCfg)
+
 	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected.Obj1, subObjConf)
+	validateSubObject(t, *expected.Obj1, subObjConf)
 }
 
 func TestConfigurationProvidersWithEnvVars(t *testing.T) {
@@ -35,7 +35,9 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	t.Setenv("config__Obj1__PropertyInt16", "23")
 	t.Setenv("config__Obj1__Time", "2022-01-21T10:00:00Z")
 	t.Setenv("config__Obj1__ArrayObj__0__PropertyString", "Modified")
+	t.Setenv("config__Obj1__ArrayObj__0__PropertyString", "Modified")
 	t.Setenv("config__Obj1__ArrayObj__2__PropertyString", "Created")
+	t.Setenv("config__Obj1__ArrayInt__4", "5")
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 	confBuilder.AddDefaultConfigurationProviders()
@@ -59,5 +61,5 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 
 	subObjConf := subObj{}
 	conf.Bind("config/Obj1", &subObjConf)
-	validateSubObject(t, expected.Obj1, subObjConf)
+	validateSubObject(t, *expected.Obj1, subObjConf)
 }
