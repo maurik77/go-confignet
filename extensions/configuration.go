@@ -3,7 +3,7 @@ package extensions
 // IConfiguration is the interface of the configuration
 type IConfiguration interface {
 	GetProviders() []ConfigurationProviderInfo
-	Bind(section string, value interface{})
+	Bind(section string, value interface{}) error
 	GetValue(section string) string
 }
 
