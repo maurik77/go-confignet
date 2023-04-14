@@ -3,6 +3,7 @@ package tests
 import (
 	"github.com/maurik77/go-confignet"
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/stretchr/testify/assert"
 
 	"testing"
 	"time"
@@ -16,12 +17,14 @@ func TestConfigurationProviders(t *testing.T) {
 	expected := getJSONExpectedValue()
 
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := conf.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
-	conf.Bind("config/Obj1", &subObjConf)
+	err = conf.Bind("config/Obj1", &subObjConf)
+	assert.Nil(t, err)
 	validateSubObject(t, *expected.Obj1, subObjConf)
 }
 
@@ -41,7 +44,8 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	conf := confBuilder.Build()
 
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := conf.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	expected := getJSONExpectedValue()
 
@@ -57,6 +61,7 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
-	conf.Bind("config/Obj1", &subObjConf)
+	err = conf.Bind("config/Obj1", &subObjConf)
+	assert.Nil(t, err)
 	validateSubObject(t, *expected.Obj1, subObjConf)
 }

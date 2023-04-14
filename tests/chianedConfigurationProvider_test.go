@@ -9,6 +9,7 @@ import (
 	"github.com/maurik77/go-confignet/decrypters"
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/providers"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/lafriks/go-shamir"
 )
@@ -35,7 +36,9 @@ func TestConfigShamir12(t *testing.T) {
 	conf := confBuilder.Build()
 
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := conf.Bind("config", &myCfg)
+
+	assert.Nil(t, err)
 
 	expected := subObj{
 		PropertyString: "Encrypted splitted string",
@@ -54,7 +57,8 @@ func TestConfigShamir13(t *testing.T) {
 	conf := confBuilder.Build()
 
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := conf.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	expected := subObj{
 		PropertyString: "Encrypted splitted string",
@@ -73,7 +77,8 @@ func TestConfigShamir23(t *testing.T) {
 	conf := confBuilder.Build()
 
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := conf.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	expected := subObj{
 		PropertyString: "Encrypted splitted string",
