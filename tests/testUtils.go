@@ -24,6 +24,7 @@ type subObj struct {
 	ArrayObj       []subObjItem
 	MapStr         map[string]string
 	MapInt         map[int]int
+	MapObj         map[int]subObjItem
 }
 
 type subObjItem struct {
@@ -121,6 +122,18 @@ func getJSONExpectedValue() myConfig {
 			},
 			MapStr: map[string]string{"Key1": "Value1", "Key2": "Value2"},
 			MapInt: map[int]int{1: 1, 2: 2},
+			MapObj: map[int]subObjItem{
+				1: {
+					PropertyString: "TestArrObj1",
+					PropertyInt:    1,
+					PropertyBool:   true,
+				},
+				2: {
+					PropertyString: "TestArrObj2",
+					PropertyInt:    2,
+					PropertyBool:   false,
+				},
+			},
 		},
 	}
 
