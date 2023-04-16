@@ -38,6 +38,9 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	t.Setenv("config__Obj1__ArrayObj__0__PropertyString", "Modified")
 	t.Setenv("config__Obj1__ArrayObj__2__PropertyString", "Created")
 	t.Setenv("config__Obj1__ArrayInt__4", "5")
+	t.Setenv("config__Obj1__MapObj__99__PropertyString", "Created")
+	t.Setenv("config__Obj1__MapObj__99__PropertyInt", "88")
+	t.Setenv("config__Obj1__MapObj__99__PropertyBool", "true")
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 	confBuilder.AddDefaultConfigurationProviders()
@@ -54,6 +57,7 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	expected.Obj1.PropertyInt16 = 23
 	expected.Obj1.ArrayObj[0].PropertyString = "Modified"
 	expected.Obj1.ArrayObj = append(expected.Obj1.ArrayObj, subObjItem{PropertyString: "Created"})
+	expected.Obj1.MapObj[99] = subObjItem{PropertyString: "Created", PropertyInt: 88, PropertyBool: true}
 
 	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-21T10:00:00Z")
 	expected.Obj1.Time = timeCfg

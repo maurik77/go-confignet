@@ -30,7 +30,19 @@
             "MapInt": {
                 "1": "1",
                 "2": "2"
-            }  
+            },
+            "MapObj": {
+                "1": {
+                    "PropertyString": "TestArrObj1",
+                    "PropertyInt": 1,
+                    "PropertyBool": true
+                },
+                "2": {
+                    "PropertyString": "TestArrObj2",
+                    "PropertyInt": 2,
+                    "PropertyBool": false
+                }
+            }            
         }
     }
 }
