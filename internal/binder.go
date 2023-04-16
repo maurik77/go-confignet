@@ -166,11 +166,17 @@ func fillField(field reflect.Value, value string, index int) {
 				if field.CanSet() {
 					field.SetInt(intValue)
 				}
+				if field.CanSet() {
+					field.SetInt(intValue)
+				}
 			} else {
 				log.Printf("Configuration:Unable to parse Int the value %v", value)
 			}
 		case uint, uint8, uint16, uint32, uint64:
 			if uintValue, err := strconv.ParseUint(value, 10, 64); err == nil {
+				if field.CanSet() {
+					field.SetUint(uintValue)
+				}
 				if field.CanSet() {
 					field.SetUint(uintValue)
 				}
@@ -182,11 +188,17 @@ func fillField(field reflect.Value, value string, index int) {
 				if field.CanSet() {
 					field.SetBool(boolValue)
 				}
+				if field.CanSet() {
+					field.SetBool(boolValue)
+				}
 			} else {
 				log.Printf("Configuration:Unable to parse Bool the value %v", value)
 			}
 		case time.Time:
 			if timeValue, err := time.Parse(time.RFC3339Nano, value); err == nil {
+				if field.CanSet() {
+					field.Set(reflect.ValueOf(timeValue))
+				}
 				if field.CanSet() {
 					field.Set(reflect.ValueOf(timeValue))
 				}
