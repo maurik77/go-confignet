@@ -1,10 +1,9 @@
 package tests
 
 import (
-	"time"
-
 	"github.com/maurik77/go-confignet"
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/stretchr/testify/assert"
 
 	"testing"
 )
@@ -57,7 +56,8 @@ func TestConfigureConfigurationProvidersFromYamlConfig(t *testing.T) {
 func validateBinding(config extensions.IConfiguration, t *testing.T, expected *myConfig) {
 
 	myCfg := myConfig{}
-	config.Bind("config", &myCfg)
+	err := config.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	var pointerInt8 int8 = 45
 
@@ -71,14 +71,12 @@ func validateBinding(config extensions.IConfiguration, t *testing.T, expected *m
 		expected.Obj1.PropertyInt16 = 3
 		expected.Obj1.PropertyInt64 = 4
 		expected.Obj1.PropertyBool = true
-
-		timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
-		expected.Obj1.Time = timeCfg
 	}
 
 	validateObject(t, *expected, myCfg)
 
 	subObjConf := subObj{}
-	config.Bind("config/Obj1", &subObjConf)
+	err = config.Bind("config/Obj1", &subObjConf)
+	assert.Nil(t, err)
 	validateSubObject(t, *expected.Obj1, subObjConf)
 }

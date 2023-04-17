@@ -3,28 +3,24 @@ package tests
 import (
 	"github.com/maurik77/go-confignet"
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/stretchr/testify/assert"
 
 	"testing"
 	"time"
 )
 
 func TestConfigurationProviders(t *testing.T) {
-	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-	confBuilder.AddDefaultConfigurationProviders()
-	conf := confBuilder.Build()
-
 	expected := getJSONExpectedValue()
 
-	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-19T10:00:00Z")
-	expected.Obj1.Time = timeCfg
-
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := confignet.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
-	conf.Bind("config/Obj1", &subObjConf)
+	err = confignet.Bind("config/Obj1", &subObjConf)
+	assert.Nil(t, err)
 	validateSubObject(t, *expected.Obj1, subObjConf)
 }
 
@@ -38,13 +34,17 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	t.Setenv("config__Obj1__ArrayObj__0__PropertyString", "Modified")
 	t.Setenv("config__Obj1__ArrayObj__2__PropertyString", "Created")
 	t.Setenv("config__Obj1__ArrayInt__4", "5")
+	t.Setenv("config__Obj1__MapObj__99__PropertyString", "Created")
+	t.Setenv("config__Obj1__MapObj__99__PropertyInt", "88")
+	t.Setenv("config__Obj1__MapObj__99__PropertyBool", "true")
 
 	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
 	confBuilder.AddDefaultConfigurationProviders()
 	conf := confBuilder.Build()
 
 	myCfg := myConfig{}
-	conf.Bind("config", &myCfg)
+	err := conf.Bind("config", &myCfg)
+	assert.Nil(t, err)
 
 	expected := getJSONExpectedValue()
 
@@ -53,6 +53,7 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	expected.Obj1.PropertyInt16 = 23
 	expected.Obj1.ArrayObj[0].PropertyString = "Modified"
 	expected.Obj1.ArrayObj = append(expected.Obj1.ArrayObj, subObjItem{PropertyString: "Created"})
+	expected.Obj1.MapObj[99] = subObjItem{PropertyString: "Created", PropertyInt: 88, PropertyBool: true}
 
 	timeCfg, _ := time.Parse(time.RFC3339Nano, "2022-01-21T10:00:00Z")
 	expected.Obj1.Time = timeCfg
@@ -60,6 +61,7 @@ func TestConfigurationProvidersWithEnvVars(t *testing.T) {
 	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
-	conf.Bind("config/Obj1", &subObjConf)
+	err = conf.Bind("config/Obj1", &subObjConf)
+	assert.Nil(t, err)
 	validateSubObject(t, *expected.Obj1, subObjConf)
 }
