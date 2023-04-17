@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/internal"
@@ -12,6 +13,11 @@ import (
 type InvalidBindError struct {
 	Type reflect.Type
 }
+
+var (
+	conf extensions.IConfiguration
+	lock = &sync.Mutex{}
+)
 
 func (e *InvalidBindError) Error() string {
 	if e.Type == nil {
@@ -54,6 +60,24 @@ func (conf *Configuration) GetValue(section string) string {
 	}
 
 	return result
+}
+
+// Bind applies the configuration to the given object using the default configuration providers (AddDefaultConfigurationProviders)
+func Bind(section string, target interface{}) error {
+	initializeDefaultConfig()
+	return conf.Bind(section, target)
+}
+
+func initializeDefaultConfig() {
+	if conf == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if conf == nil {
+			var confBuilder extensions.IConfigurationBuilder = &ConfigurationBuilder{}
+			confBuilder.AddDefaultConfigurationProviders()
+			conf = confBuilder.Build()
+		}
+	}
 }
 
 // Bind applies the configuration to the given object

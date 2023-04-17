@@ -53,7 +53,27 @@ type subObjItem struct {
 }
 ```
 
-Usage example:
+Basic usage example:
+
+```go
+// Default configuration providers:
+// 1. JsonConfigurationProvider: default file name app.json
+// 2. YamlConfigurationProvider: default file name app.yaml
+// 3. EnvConfigurationProvider
+// 4. CmdLineConfigurationProvider
+// 5. KeyVaultConfigurationProvider: connection settings will be retrieved from the environment variables:
+//      AZURE_TENANT_ID
+//      AZURE_CLIENT_ID
+//      AZURE_CLIENT_SECRET
+//      AZURE_CLIENT_CERTIFICATE_PATH
+//      AZURE_USERNAME
+//      AZURE_PASSWORD
+
+myCfg := MyConfig{}
+confignet.Bind("config", &myCfg)
+```
+
+Intermediate usage example:
 
 ```go
 var confBuilder confignet.IConfigurationBuilder = &confignet.ConfigurationBuilder{}

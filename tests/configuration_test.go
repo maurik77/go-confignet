@@ -10,20 +10,16 @@ import (
 )
 
 func TestConfigurationProviders(t *testing.T) {
-	var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-	confBuilder.AddDefaultConfigurationProviders()
-	conf := confBuilder.Build()
-
 	expected := getJSONExpectedValue()
 
 	myCfg := myConfig{}
-	err := conf.Bind("config", &myCfg)
+	err := confignet.Bind("config", &myCfg)
 	assert.Nil(t, err)
 
 	validateObject(t, expected, myCfg)
 
 	subObjConf := subObj{}
-	err = conf.Bind("config/Obj1", &subObjConf)
+	err = confignet.Bind("config/Obj1", &subObjConf)
 	assert.Nil(t, err)
 	validateSubObject(t, *expected.Obj1, subObjConf)
 }
