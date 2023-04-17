@@ -1,48 +1,74 @@
 {
-    "config": {
-        "PropertyInt8": 45,        
-        "Obj1": {
-            "PropertyString": "TestObj1",
-            "PropertyInt": 1,
-            "PropertyInt8": 2,
-            "PropertyInt16": 3,
-            "PropertyInt64": 4,
-            "PropertyBool": true,
-            "Time": "2022-01-19T10:00:00Z",            
-            "ArrayStr": ["Test","Test2"],
-            "ArrayInt": [1,2],
-            "ArrayObj": [
-                {
-                    "PropertyString": "TestArrObj1",
-                    "PropertyInt": 1,
-                    "PropertyBool": true
-                },
-                {
-                    "PropertyString": "TestArrObj2",
-                    "PropertyInt": 2,
-                    "PropertyBool": false
-                }                
-            ],
-            "MapStr": {
-                "Key1": "Value1",
-                "Key2": "Value2"
-            },
-            "MapInt": {
-                "1": "1",
-                "2": "2"
-            },
-            "MapObj": {
-                "1": {
-                    "PropertyString": "TestArrObj1",
-                    "PropertyInt": 1,
-                    "PropertyBool": true
-                },
-                "2": {
-                    "PropertyString": "TestArrObj2",
-                    "PropertyInt": 2,
-                    "PropertyBool": false
-                }
-            }            
+  "config": {
+    "PropertyInt8": 45,
+    "notMapped": 88,
+    "Obj1": {
+      "PropertyString": "TestObj1",
+      "PropertyInt": 1,
+      "PropertyInt8": 2,
+      "PropertyInt16": 3,
+      "PropertyInt64": 4,
+      "PropertyBool": true,
+      "Time": "2022-01-19T10:00:00Z",
+      "ArrayStr": ["Test", "Test2"],
+      "ArrayInt": [1, 2],
+      "ArrayObj": [
+        {
+          "PropertyString": "TestArrObj1",
+          "PropertyInt": 1,
+          "PropertyBool": true
+        },
+        {
+          "PropertyString": "TestArrObj2",
+          "PropertyInt": 2,
+          "PropertyBool": false
         }
+      ],
+      "MapStr": {
+        "Key1": "Value1",
+        "Key2": "Value2"
+      },
+      "MapInt": {
+        "1": "1",
+        "2": "2"
+      },
+      "MapObj": {
+        "1": {
+          "PropertyString": "TestArrObj1",
+          "PropertyInt": 1,
+          "PropertyBool": true
+        },
+        "2": {
+          "PropertyString": "TestArrObj2",
+          "PropertyInt": 2,
+          "PropertyBool": false
+        }
+      },
+      "ArrayObjPtr": [
+        {
+          "PropertyString": "TestArrObj1",
+          "PropertyInt": 1,
+          "PropertyBool": true
+        },
+        {
+          "PropertyString": "TestArrObj2",
+          "PropertyInt": 2,
+          "PropertyBool": false
+        }
+      ],
+      "MapObjPtr": {
+        "false": {
+          "PropertyString": "TestArrObj1",
+          "PropertyInt": 1,
+          "PropertyBool": true
+        },
+        "true": {
+          "PropertyString": "TestArrObj2",
+          "PropertyInt": 2,
+          "PropertyBool": false,
+          "notMapped": 88
+        }
+      }
     }
+  }
 }

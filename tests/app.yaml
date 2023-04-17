@@ -3,3 +3,8 @@ config:
     PropertyString: "TestObj1"
     PropertyInt: 1
     PropertyBool: true
+    MapObj:
+      "99":
+        PropertyString: "MapObjStrYaml"
+        PropertyInt: 87
+        PropertyBool: true

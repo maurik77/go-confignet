@@ -16,7 +16,7 @@ func fillObject(parent reflect.Value, value string, parts ...string) {
 	log.Printf("fillObject -> parts: %v, value: %v", parts, value)
 
 	if parent.Kind() != reflect.Struct {
-		log.Printf("Configuration:Parent is not a valid struct or pointer %v. Parts %v", parent, parts)
+		log.Printf("Configuration:Parent is not a valid struct %v. Parts %v", parent, parts)
 		return
 	}
 
@@ -28,13 +28,7 @@ func fillObject(parent reflect.Value, value string, parts ...string) {
 		return
 	}
 
-	if nestedField.Kind() == reflect.Ptr {
-		if nestedField.IsNil() {
-			defaultValue := reflect.New(nestedField.Type().Elem()).Elem()
-			nestedField.Set(defaultValue.Addr())
-		}
-		nestedField = nestedField.Elem()
-	}
+	nestedField = checkValueOfPointer(nestedField)
 
 	switch {
 	case len(parts) == 1: // property
@@ -48,6 +42,18 @@ func fillObject(parent reflect.Value, value string, parts ...string) {
 	default: // nested object
 		fillObject(nestedField, value, parts[1:]...)
 	}
+}
+
+func checkValueOfPointer(field reflect.Value) reflect.Value {
+	if field.Kind() == reflect.Ptr {
+		if field.IsNil() {
+			defaultValue := reflect.New(field.Type().Elem()).Elem()
+			field.Set(defaultValue.Addr())
+		}
+		return field.Elem()
+	}
+
+	return field
 }
 
 func fillMap(nestedField reflect.Value, value string, parts ...string) {
@@ -77,12 +83,11 @@ func fillMap(nestedField reflect.Value, value string, parts ...string) {
 		valueField.Set(existingValue)
 	}
 
-	log.Printf("  	%v, %v", valueField.Kind(), valueField)
-
 	if len(parts) == 2 {
 		fillField(valueField, value, -1)
 	} else {
-		fillObject(valueField, value, parts[2:]...)
+		valueFieldElem := checkValueOfPointer(valueField)
+		fillObject(valueFieldElem, value, parts[2:]...)
 	}
 
 	nestedField.SetMapIndex(keyField.Elem(), valueField)
@@ -105,7 +110,8 @@ func fillArray(nestedField reflect.Value, value string, parts ...string) {
 	if len(parts) == 2 {
 		fillField(nestedField, value, index)
 	} else {
-		fillObject(nestedField.Index(index), value, parts[2:]...)
+		valueFieldElem := checkValueOfPointer(nestedField.Index(index))
+		fillObject(valueFieldElem, value, parts[2:]...)
 	}
 }
 
@@ -135,7 +141,8 @@ func fillSlice(nestedField reflect.Value, value string, parts ...string) {
 	if len(parts) == 2 {
 		fillField(nestedField, value, index)
 	} else {
-		fillObject(nestedField.Index(index), value, parts[2:]...)
+		valueFieldElem := checkValueOfPointer(nestedField.Index(index))
+		fillObject(valueFieldElem, value, parts[2:]...)
 	}
 }
 
@@ -166,17 +173,11 @@ func fillField(field reflect.Value, value string, index int) {
 				if field.CanSet() {
 					field.SetInt(intValue)
 				}
-				if field.CanSet() {
-					field.SetInt(intValue)
-				}
 			} else {
 				log.Printf("Configuration:Unable to parse Int the value %v", value)
 			}
 		case uint, uint8, uint16, uint32, uint64:
 			if uintValue, err := strconv.ParseUint(value, 10, 64); err == nil {
-				if field.CanSet() {
-					field.SetUint(uintValue)
-				}
 				if field.CanSet() {
 					field.SetUint(uintValue)
 				}
@@ -188,17 +189,11 @@ func fillField(field reflect.Value, value string, index int) {
 				if field.CanSet() {
 					field.SetBool(boolValue)
 				}
-				if field.CanSet() {
-					field.SetBool(boolValue)
-				}
 			} else {
 				log.Printf("Configuration:Unable to parse Bool the value %v", value)
 			}
 		case time.Time:
 			if timeValue, err := time.Parse(time.RFC3339Nano, value); err == nil {
-				if field.CanSet() {
-					field.Set(reflect.ValueOf(timeValue))
-				}
 				if field.CanSet() {
 					field.Set(reflect.ValueOf(timeValue))
 				}

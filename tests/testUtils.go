@@ -22,9 +22,11 @@ type subObj struct {
 	ArrayStr       []string
 	ArrayInt       *[3]int
 	ArrayObj       []subObjItem
+	ArrayObjPtr    []*subObjItem
 	MapStr         map[string]string
 	MapInt         map[int]int
 	MapObj         map[int]subObjItem
+	MapObjPtr      map[bool]*subObjItem
 }
 
 type subObjItem struct {
@@ -93,6 +95,21 @@ func validateSubObject(t *testing.T, expected subObj, result subObj) {
 		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayObj, result.ArrayObj)
 		t.Fail()
 	}
+
+	if !reflect.DeepEqual(result.ArrayObjPtr, expected.ArrayObjPtr) {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayObj, result.ArrayObj)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(result.MapObj, expected.MapObj) {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayObj, result.ArrayObj)
+		t.Fail()
+	}
+
+	if !reflect.DeepEqual(result.MapObjPtr, expected.MapObjPtr) {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.ArrayObj, result.ArrayObj)
+		t.Fail()
+	}
 }
 
 func getJSONExpectedValue() myConfig {
@@ -120,6 +137,18 @@ func getJSONExpectedValue() myConfig {
 					PropertyBool:   false,
 				},
 			},
+			ArrayObjPtr: []*subObjItem{
+				{
+					PropertyString: "TestArrObj1",
+					PropertyInt:    1,
+					PropertyBool:   true,
+				},
+				{
+					PropertyString: "TestArrObj2",
+					PropertyInt:    2,
+					PropertyBool:   false,
+				},
+			},
 			MapStr: map[string]string{"Key1": "Value1", "Key2": "Value2"},
 			MapInt: map[int]int{1: 1, 2: 2},
 			MapObj: map[int]subObjItem{
@@ -129,6 +158,23 @@ func getJSONExpectedValue() myConfig {
 					PropertyBool:   true,
 				},
 				2: {
+					PropertyString: "TestArrObj2",
+					PropertyInt:    2,
+					PropertyBool:   false,
+				},
+				99: {
+					PropertyString: "MapObjStrYaml",
+					PropertyInt:    87,
+					PropertyBool:   true,
+				},
+			},
+			MapObjPtr: map[bool]*subObjItem{
+				false: {
+					PropertyString: "TestArrObj1",
+					PropertyInt:    1,
+					PropertyBool:   true,
+				},
+				true: {
 					PropertyString: "TestArrObj2",
 					PropertyInt:    2,
 					PropertyBool:   false,
