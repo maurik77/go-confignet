@@ -350,3 +350,37 @@ Map:
 | **config-Obj1-PropertyBool**   | "true"     |
 
 ### Azure Key Vault
+
+KeyVaultConfigurationProvider loads configuration from an Azure KeyVault service. Azure KeyVault is a cloud service for securely storing and accessing secrets; for further information follow the official documentation [official link](https://learn.microsoft.com/en-Us/azure/key-vault/general/basic-concepts).
+It uses "\-\-_" (double hyphen) as separator for hierarchical configuration. It exposes the following properties that change the behavior of the provider.
+
+```go
+// KeyVaultConfigurationProvider loads configuration from Azure Key Vault
+type KeyVaultConfigurationProvider struct {
+ Prefix       string
+ RemovePrefix bool
+ TenantID     string
+ ClientID     string
+ ClientSecret string
+ BaseURL      string
+}
+```
+
+Properties:
+
+- Prefix (optional): if set only the environment variables starting with the Prefix value will be loaded. E.g.:
+  - Prefix value: "secrets"
+  - Environment Variables:
+    - secrets--cred--password=pwd123
+    - cred--username=test1
+  - Map: only secrets--cred--password is loaded
+    - Key: secrets--cred--password
+    - Value: pwd123
+- RemovePrefix (optional): It is ignored if Prefix is not set. If set to true the environment variable will be added to the map removing from the key the prefix value and the first separator. E.g. using as example the previous settings:
+  - RemovePrefix: true
+  - Map: only secrets--cred--password is loaded
+    - Key: cred--password
+    - Value: pwd123
+- TenantID:
+- ClientID:
+- ClientSecret
