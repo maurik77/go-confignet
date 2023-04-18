@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 
 	"github.com/maurik77/go-confignet/internal"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -48,7 +48,7 @@ func main() {
 	err = internal.MarshalToFile(destination, result, marshal)
 
 	if err != nil {
-		log.Printf("Error in MarshalToFile %v", err)
+		log.Err(err).Msg("Error in MarshalToFile")
 	}
 }
 

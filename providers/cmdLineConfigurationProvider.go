@@ -1,11 +1,11 @@
 package providers
 
 import (
-	"log"
 	"os"
 	"strings"
 
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/rs/zerolog/log"
 )
 
 // CmdLineConfigurationProvider loads configuration from commandline arguments
@@ -51,7 +51,7 @@ func (provider *CmdLineConfigurationProvider) Load(decrypter extensions.IConfigu
 			value, err = decrypter.Decrypt(value)
 
 			if err != nil {
-				log.Printf("CmdLineConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				log.Err(err).Msgf("CmdLineConfigurationProvider:Error calling decryption for key %v", key)
 			}
 		}
 

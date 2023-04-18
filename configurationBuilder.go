@@ -3,13 +3,13 @@ package confignet
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/internal"
 	"github.com/maurik77/go-confignet/providers"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -36,13 +36,13 @@ type ConfigurationBuilder struct {
 // Add adds the configuration provider to the inner collection
 func (conf *ConfigurationBuilder) Add(source extensions.IConfigurationProvider) {
 	conf.configurationProvidersInfo = append(conf.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source})
-	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
+	log.Info().Msgf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
 func (conf *ConfigurationBuilder) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
 	conf.configurationProvidersInfo = append(conf.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source, Decrypter: decrypter})
-	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
+	log.Info().Msgf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
 }
 
 // AddDefaultConfigurationProviders adds the default configuration providers
@@ -70,7 +70,7 @@ func configureConfigurationProvidersFromSettings(settings []extensions.ProviderS
 		if configurationSource, ok := configurationSources[providerSettings.Name]; ok {
 			provider, err := configurationSource.NewConfigurationProvider(providerSettings)
 			if err != nil {
-				log.Printf("ConfigurationBuilder: error in creating configuration provider: %s", err.Error())
+				log.Err(err).Msg("ConfigurationBuilder: error in creating configuration provider.")
 				continue
 			}
 
@@ -85,7 +85,7 @@ func configureConfigurationProvidersFromSettings(settings []extensions.ProviderS
 			}
 
 		} else {
-			log.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", providerSettings.Name)
+			log.Warn().Msgf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", providerSettings.Name)
 		}
 	}
 }
@@ -117,7 +117,7 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromJSONConfig(
 	err := internal.UnmarshalFromFile(jsonPath, &settings, json.Unmarshal)
 
 	if err != nil {
-		log.Printf("ConfigurationBuilder::configureConfigurationProvidersFromJSONConfig Error in UnmarshalFromFile %v", err)
+		log.Err(err).Msg("ConfigurationBuilder::configureConfigurationProvidersFromJSONConfig Error in UnmarshalFromFile")
 	}
 
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
@@ -133,7 +133,7 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromYamlConfig(
 	err := internal.UnmarshalFromFile(yamlPath, &settings, yaml.Unmarshal)
 
 	if err != nil {
-		log.Printf("ConfigurationBuilder::configureConfigurationProvidersFromYamlConfig Error in UnmarshalFromFile %v", err)
+		log.Err(err).Msg("ConfigurationBuilder::configureConfigurationProvidersFromYamlConfig Error in UnmarshalFromFile")
 	}
 
 	conf.ConfigureConfigurationProvidersFromSettings(settings)

@@ -1,11 +1,11 @@
 package providers
 
 import (
-	"log"
 	"os"
 	"strings"
 
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/rs/zerolog/log"
 )
 
 // EnvConfigurationProvider loads configuration from environment variables
@@ -37,7 +37,7 @@ func (provider *EnvConfigurationProvider) Load(decrypter extensions.IConfigurati
 			value, err = decrypter.Decrypt(value)
 
 			if err != nil {
-				log.Printf("EnvConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				log.Err(err).Msgf("EnvConfigurationProvider:Error calling decryption for key %v", key)
 			}
 		}
 

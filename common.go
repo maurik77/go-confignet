@@ -1,11 +1,14 @@
 package confignet
 
 import (
+	"os"
 	"sort"
+	"strconv"
 
 	"github.com/maurik77/go-confignet/decrypters"
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/providers"
+	"github.com/rs/zerolog"
 )
 
 var (
@@ -54,6 +57,15 @@ func ConfigurationSources() []string {
 }
 
 func init() {
+	logLevelStr := os.Getenv("LOG_LEVEL")
+	logLevel, err := strconv.Atoi(logLevelStr)
+	if err != nil {
+		logLevel = int(zerolog.InfoLevel)
+	}
+
+	// set the zerolog level based on the environment variable value
+	zerolog.SetGlobalLevel(zerolog.Level(logLevel))
+
 	RegisterConfigurationSource(&providers.CmdLineConfigurationProviderSource{})
 	RegisterConfigurationSource(&providers.EnvConfigurationProviderSource{})
 	RegisterConfigurationSource(&providers.JSONConfigurationProviderSource{})

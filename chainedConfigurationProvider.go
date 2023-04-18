@@ -1,10 +1,10 @@
 package confignet
 
 import (
-	"log"
 	"strings"
 
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/rs/zerolog/log"
 )
 
 // ChainedConfigurationProvider loads configuration from other configuration providers
@@ -17,13 +17,13 @@ type ChainedConfigurationProvider struct {
 // Add adds the configuration provider to the inner collection
 func (provider *ChainedConfigurationProvider) Add(source extensions.IConfigurationProvider) {
 	provider.configurationProvidersInfo = append(provider.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source})
-	log.Printf("ChainedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
+	log.Info().Msgf("ChainedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
 func (provider *ChainedConfigurationProvider) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
 	provider.configurationProvidersInfo = append(provider.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source, Decrypter: decrypter})
-	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
+	log.Info().Msgf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
 }
 
 // Load configuration from environment variables
@@ -46,12 +46,11 @@ func (provider *ChainedConfigurationProvider) Load(decrypter extensions.IConfigu
 	}
 
 	if decrypter != nil {
-
 		for key, values := range provider.dataValues {
 			value, err := decrypter.Decrypt(values...)
 
 			if err != nil {
-				log.Printf("ChainedConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				log.Err(err).Msgf("ChainedConfigurationProvider:Error calling decryption for key %v", key)
 			} else {
 				provider.data[key] = value
 			}

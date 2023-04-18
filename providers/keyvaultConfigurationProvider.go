@@ -3,13 +3,13 @@ package providers
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 	"github.com/maurik77/go-confignet/extensions"
+	"github.com/rs/zerolog/log"
 )
 
 // KeyVaultConfigurationProvider loads configuration from Azure Key Vault
@@ -30,13 +30,13 @@ func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfig
 	cred, err := provider.getCredential()
 
 	if err != nil {
-		log.Println("KeyVaultConfigurationProvider:Unable to retrieve the token with the provided credentials")
+		log.Err(err).Msg("KeyVaultConfigurationProvider:Unable to retrieve the token with the provided credentials")
 	}
 
 	client, err := azsecrets.NewClient(provider.BaseURL, cred, nil)
 
 	if err != nil {
-		log.Println("KeyVaultConfigurationProvider:Unable to connect to keyvault with the provided credentials and base url", provider.BaseURL)
+		log.Err(err).Msgf("KeyVaultConfigurationProvider:Unable to connect to keyvault with the provided credentials and base url: %v", provider.BaseURL)
 	}
 
 	pager := client.ListSecrets(nil)
@@ -55,7 +55,7 @@ func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfig
 
 			resp, err := client.GetSecret(context.Background(), key, nil)
 			if err != nil {
-				log.Printf("KeyVaultConfigurationProvider:Error retrieving key %v. %v", key, err)
+				log.Err(err).Msgf("KeyVaultConfigurationProvider:Error retrieving key %v", key)
 				continue
 			}
 
@@ -66,7 +66,7 @@ func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfig
 				value, err = decrypter.Decrypt(value)
 
 				if err != nil {
-					log.Printf("KeyVaultConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+					log.Err(err).Msgf("KeyVaultConfigurationProvider:Error calling decryption for key %v", key)
 				}
 			}
 
