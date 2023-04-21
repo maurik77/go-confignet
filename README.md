@@ -12,11 +12,23 @@ Configuration providers read configuration data from key-value pairs (map[string
 - [Command line arguments](#command-line-arguments)
 - [Azure Key Vault](#azure-key-vault)
 - [Splitted Secrets](#splitted-secrets)
-- Custom providers
+<!-- - Custom providers -->
 
 ## Usage
 
 Using the Configuration Framework is simple and can be broken down into a few simple steps:
+
+Basic:
+
+1. Create a struct that represents the configuration.
+2. Set the configuration using one or all of this methods:
+    - write a file app.json
+    - write a file app.yaml
+    - set the environment variables
+    - use command line arguments
+3. Invoke the confignet.Bind to apply the configuration to your custom object.
+
+Intermediate:
 
 1. Create a struct that represents the configuration.
 2. Create a configuration builder.
@@ -117,6 +129,10 @@ conf := confBuilder.Build()
 myCfg := MyConfig{}
 conf.Bind("config", &myCfg)
 ```
+
+## Encryption
+
+TODO
 
 ## Configuration Provider
 
@@ -384,3 +400,6 @@ Properties:
 - TenantID:
 - ClientID:
 - ClientSecret
+
+### Splitted Secrets
+
