@@ -15,10 +15,11 @@ func TestConfigureConfigurationProvidersSecret(t *testing.T) {
 
 	confBuilder.ConfigureConfigurationProvidersFromEnv()
 	config := confBuilder.Build()
+	var pointerInt8 int8 = 45
 
 	expected := myConfig{
-		PropertyInt8: 45,
-		Obj1: subObj{
+		PropertyInt8: &pointerInt8,
+		Obj1: &subObj{
 			PropertyString: "TestObj1",
 			PropertyInt:    1,
 			PropertyInt8:   2,

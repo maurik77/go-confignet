@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	// ConfigurationProviderKeyvaultIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
-	ConfigurationProviderKeyvaultIdentifier = "keyvault"
+	// ConfigurationProviderKeyVaultIdentifier is the environment variable containing the UniqueIdentifier of the configuration provider
+	ConfigurationProviderKeyVaultIdentifier = "keyvault"
 )
 
-// KeyvaultConfigurationProviderSource is able to create KeyvaultConfigurationProvider starting from the provider settings
-type KeyvaultConfigurationProviderSource struct {
+// KeyVaultConfigurationProviderSource is able to create KeyVaultConfigurationProvider starting from the provider settings
+type KeyVaultConfigurationProviderSource struct {
 }
 
-// NewConfigurationProvider creates KeyvaultConfigurationProvider starting from the provider settings
-func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
+// NewConfigurationProvider creates KeyVaultConfigurationProvider starting from the provider settings
+func (providerSource *KeyVaultConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
-		return nil, fmt.Errorf("KeyvaultConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
+		return nil, fmt.Errorf("KeyVaultConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
 	}
 
 	prefix := settings.GetPropertyValue("prefix", "").(string)
@@ -28,7 +28,7 @@ func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvi
 	clientSecret := settings.GetPropertyValue("clientSecret", "").(string)
 	baseURL := settings.GetPropertyValue("baseURL", "").(string)
 
-	return &KeyvaultConfigurationProvider{
+	return &KeyVaultConfigurationProvider{
 		Prefix:       prefix,
 		RemovePrefix: removePrefix,
 		TenantID:     tenantID,
@@ -39,6 +39,6 @@ func (providerSource *KeyvaultConfigurationProviderSource) NewConfigurationProvi
 }
 
 // GetUniqueIdentifier returns the unique identifier of the configuration provider source. It will be use in the settings file
-func (providerSource *KeyvaultConfigurationProviderSource) GetUniqueIdentifier() string {
-	return ConfigurationProviderKeyvaultIdentifier
+func (providerSource *KeyVaultConfigurationProviderSource) GetUniqueIdentifier() string {
+	return ConfigurationProviderKeyVaultIdentifier
 }

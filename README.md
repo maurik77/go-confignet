@@ -26,7 +26,7 @@ Using the Configuration Framework is simple and can be broken down into a few si
 
 ## Getting Started
 
-Configuration struct example
+Simple configuration struct example
 
 ```go
 type MyConfig struct {
@@ -41,9 +41,6 @@ type SubObj struct {
     PropertyInt64  int64
     PropertyBool   bool
     Time           time.Time
-    ArrayStr       []string
-    ArrayInt       []int
-    ArrayObj       []subObjItem    
 }
 
 type subObjItem struct {
@@ -53,7 +50,50 @@ type subObjItem struct {
 }
 ```
 
-Usage example:
+Complex configuration struct example
+
+```go
+type myConfig struct {
+    Obj1         *subObj
+    PropertyInt8 *int8
+}
+
+type subObj struct {
+    PropertyString string
+    PropertyInt    int
+    PropertyInt8   int8
+    PropertyInt16  int16
+    PropertyInt64  int64
+    PropertyBool   bool
+    Time           time.Time
+    ArrayStr       []string
+    ArrayInt       *[3]int
+    ArrayObj       []subObjItem
+    ArrayObjPtr    []*subObjItem
+    MapStr         map[string]string
+    MapInt         map[int]int
+    MapObj         map[int]subObjItem
+    MapObjPtr      map[bool]*subObjItem
+}
+
+type subObjItem struct {
+    PropertyString string
+    PropertyInt    int
+    PropertyBool   bool
+}
+```
+
+Basic usage example:
+
+```go
+// Default configuration providers:
+// Bind applies the configuration to the given object using the default configuration providers(AddDefaultConfigurationProviders)
+
+myCfg := MyConfig{}
+confignet.Bind("config", &myCfg)
+```
+
+Intermediate usage example:
 
 ```go
 var confBuilder confignet.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
@@ -63,7 +103,7 @@ var confBuilder confignet.IConfigurationBuilder = &confignet.ConfigurationBuilde
 // 2. YamlConfigurationProvider: default file name app.yaml
 // 3. EnvConfigurationProvider
 // 4. CmdLineConfigurationProvider
-// 5. KeyvaultConfigurationProvider: connection settings will be retrieved from the environment variables:
+// 5. KeyVaultConfigurationProvider: connection settings will be retrieved from the environment variables:
 //      AZURE_TENANT_ID
 //      AZURE_CLIENT_ID
 //      AZURE_CLIENT_SECRET
@@ -129,16 +169,16 @@ type MyConfig struct {
 Let's assume that the configuration provider uses ":" as separator, the map will contain:
 
 | OOP dotted notation (myConfig struct) | Map Key                   | Map Value    |
-| ------------------------------------ | ------------------------- | ------------ |
-| myConfig.PropertyString              | **PropertyString**        | "text"       |
-| myConfig.PropertyInt                 | **PropertyInt**           | "3"          |
-| myConfig.PropertyBool                | **PropertyBool**          | "true"       |
-| myConfig.Time                        | **Time**                  | "2022-01-01" |
-| myConfig.Obj1.PropertyString         | **Obj1:PropertyString**   | "text2"      |
-| myConfig.Obj1.PropertyInt            | **Obj1:PropertyInt**      | "55"         |
-| myConfig.Obj1.PropertyBool           | **Obj1:PropertyBool**     | "false"      |
-| myConfig.Obj1.Time                   | **Obj1:Time**             | "2022-05-01" |
-| myConfig.Obj1.Obj2.PropertyInt       | **Obj1:Obj2:PropertyInt** | "33"         |
+| ------------------------------------- | ------------------------- | ------------ |
+| myConfig.PropertyString               | **PropertyString**        | "text"       |
+| myConfig.PropertyInt                  | **PropertyInt**           | "3"          |
+| myConfig.PropertyBool                 | **PropertyBool**          | "true"       |
+| myConfig.Time                         | **Time**                  | "2022-01-01" |
+| myConfig.Obj1.PropertyString          | **Obj1:PropertyString**   | "text2"      |
+| myConfig.Obj1.PropertyInt             | **Obj1:PropertyInt**      | "55"         |
+| myConfig.Obj1.PropertyBool            | **Obj1:PropertyBool**     | "false"      |
+| myConfig.Obj1.Time                    | **Obj1:Time**             | "2022-05-01" |
+| myConfig.Obj1.Obj2.PropertyInt        | **Obj1:Obj2:PropertyInt** | "33"         |
 
 ### GetData function
 
@@ -266,5 +306,47 @@ Map:
 | **config\_\_Obj1\_\_PropertyBool**   | "true"     |
 
 ### Command line arguments
+
+CmdConfigurationProvider loads configuration from the command line arguments. It uses "-" (hyphen) as separator for hierarchical configuration. It exposes the following properties that change the behavior of the provider.
+
+```go
+// EnvConfigurationProvider loads configuration from environment variables
+type CmdLineConfigurationProvider struct {
+ Prefix       string
+ RemovePrefix bool
+}
+```
+
+Properties:
+
+- Prefix (optional): if set only the environment variables starting with the Prefix value will be loaded. E.g.:
+  - Prefix value: "secrets"
+  - Command line arguments:
+    - secrets-cred-password=pwd123
+    - cred-username=test1
+  - Map: only secrets-cred-password is loaded
+    - Key: secrets-cred-password
+    - Value: pwd123
+- RemovePrefix (optional): It is ignored if Prefix is not set. If set to true the environment variable will be added to the map removing from the key the prefix value and the first separator. E.g. using as example the previous settings:
+  - RemovePrefix: true
+  - Map: only secrets-cred-password is loaded
+    - Key: cred-password
+    - Value: pwd123
+
+Example:
+
+```bash
+# Command line arguments
+[Exe path] -config-PropertyInt8 45 -config-Obj1-PropertyString TestObj1 -config-Obj1-PropertyInt 1 -config-Obj1-PropertyBool true
+```
+
+Map:
+
+| Map Key                        | Map Value  |
+| ------------------------------ | ---------- |
+| **config-PropertyInt8**        | "45"       |
+| **config-Obj1-PropertyString** | "TestObj1" |
+| **config-Obj1-PropertyInt**    | "1"        |
+| **config-Obj1-PropertyBool**   | "true"     |
 
 ### Azure Key Vault
