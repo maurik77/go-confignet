@@ -3,7 +3,6 @@ package confignet
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -36,13 +35,13 @@ type ConfigurationBuilder struct {
 // Add adds the configuration provider to the inner collection
 func (conf *ConfigurationBuilder) Add(source extensions.IConfigurationProvider) {
 	conf.configurationProvidersInfo = append(conf.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source})
-	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
+	logger.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
 func (conf *ConfigurationBuilder) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
 	conf.configurationProvidersInfo = append(conf.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source, Decrypter: decrypter})
-	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
+	logger.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
 }
 
 // AddDefaultConfigurationProviders adds the default configuration providers
@@ -70,7 +69,7 @@ func configureConfigurationProvidersFromSettings(settings []extensions.ProviderS
 		if configurationSource, ok := configurationSources[providerSettings.Name]; ok {
 			provider, err := configurationSource.NewConfigurationProvider(providerSettings)
 			if err != nil {
-				log.Printf("ConfigurationBuilder: error in creating configuration provider: %s", err.Error())
+				logger.Printf("ConfigurationBuilder: error in creating configuration provider: %s", err.Error())
 				continue
 			}
 
@@ -85,7 +84,7 @@ func configureConfigurationProvidersFromSettings(settings []extensions.ProviderS
 			}
 
 		} else {
-			log.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", providerSettings.Name)
+			logger.Printf("ConfigurationBuilder: unable to find configuration source with unique identifier '%v'", providerSettings.Name)
 		}
 	}
 }
@@ -117,7 +116,7 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromJSONConfig(
 	err := internal.UnmarshalFromFile(jsonPath, &settings, json.Unmarshal)
 
 	if err != nil {
-		log.Printf("ConfigurationBuilder::configureConfigurationProvidersFromJSONConfig Error in UnmarshalFromFile %v", err)
+		logger.Printf("ConfigurationBuilder::configureConfigurationProvidersFromJSONConfig Error in UnmarshalFromFile %v", err)
 	}
 
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
@@ -133,10 +132,37 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromYamlConfig(
 	err := internal.UnmarshalFromFile(yamlPath, &settings, yaml.Unmarshal)
 
 	if err != nil {
-		log.Printf("ConfigurationBuilder::configureConfigurationProvidersFromYamlConfig Error in UnmarshalFromFile %v", err)
+		logger.Printf("ConfigurationBuilder::configureConfigurationProvidersFromYamlConfig Error in UnmarshalFromFile %v", err)
 	}
 
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
+}
+
+// errorCollectingLogger wraps an existing logger and records every message it receives.
+type errorCollectingLogger struct {
+	base   extensions.Logger
+	errors []string
+}
+
+func (l *errorCollectingLogger) Printf(format string, args ...interface{}) {
+	l.base.Printf(format, args...)
+	l.errors = append(l.errors, fmt.Sprintf(format, args...))
+}
+
+// BuildOrPanic calls Build and panics if any error is logged during provider loading.
+// Use this when missing or invalid configuration should be treated as a fatal programmer error.
+func (conf *ConfigurationBuilder) BuildOrPanic() extensions.IConfiguration {
+	el := &errorCollectingLogger{base: logger}
+	SetLogger(el)
+	defer SetLogger(el.base)
+
+	result := conf.Build()
+
+	if len(el.errors) > 0 {
+		panic("confignet: BuildOrPanic failed:\n" + strings.Join(el.errors, "\n"))
+	}
+
+	return result
 }
 
 // Build invokes the load function of each configuration provider and return the Configuration object

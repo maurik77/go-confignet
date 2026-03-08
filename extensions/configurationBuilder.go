@@ -10,6 +10,7 @@ type IConfigurationProviderCollection interface {
 type IConfigurationBuilder interface {
 	IConfigurationProviderCollection
 	Build() IConfiguration
+	BuildOrPanic() IConfiguration
 	AddDefaultConfigurationProviders()
 	AddDefaultConfigurationProvidersWithBasePath(basePath string)
 	ConfigureConfigurationProvidersFromEnv()
