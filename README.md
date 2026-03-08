@@ -12,6 +12,7 @@ Requires **Go 1.18** or later.
 
 ## Table of Contents
 
+- [When to choose go-confignet](#when-to-choose-go-confignet)
 - [Quick Start](#quick-start)
 - [How It Works](#how-it-works)
 - [Built-in Providers](#built-in-providers)
@@ -26,6 +27,48 @@ Requires **Go 1.18** or later.
 - [Supported Field Types](#supported-field-types)
 - [Provider Override Order](#provider-override-order)
 - [Custom Providers](#custom-providers)
+
+---
+
+## When to choose go-confignet
+
+go-confignet is designed around one core idea: **configuration comes from many places at once, and that should be a first-class concern — not an afterthought**.
+
+### Multiple providers, one struct
+
+Most configuration libraries treat layering as a convenience feature. In go-confignet it is the foundation. Every provider in the stack contributes to the final result, each with its own natural format and separator. You do not need to merge maps, resolve conflicts manually, or write glue code:
+
+```go
+confBuilder.Add(&providers.JSONConfigurationProvider{})     // base defaults from file
+confBuilder.Add(&providers.YamlConfigurationProvider{})     // team-level overrides
+confBuilder.Add(&providers.EnvConfigurationProvider{})      // deployment-specific values
+confBuilder.Add(&providers.CmdLineConfigurationProvider{})  // operator overrides at runtime
+confBuilder.Add(&providers.KeyVaultConfigurationProvider{   // secrets from Azure Key Vault
+    BaseURL: "https://myvault.vault.azure.net",
+})
+
+conf := confBuilder.Build()
+conf.Bind("app", &cfg) // all sources merged, last writer wins
+```
+
+Each provider speaks its own notation (`app.Database.Host`, `app__Database__Host`, `app--Database--Host`). The binder translates them all to the same struct field — no configuration on your part.
+
+### Choose go-confignet when you need to:
+
+**Blend many configuration sources without boilerplate.**
+The stacked-provider model is the default, not an advanced feature. Adding or removing a source is one line.
+
+**Store secrets split across multiple locations.**
+The built-in Shamir Secret Sharing support lets you distribute secret shares across separate files, vaults, or services. No single location holds the full secret, and reconstruction is automatic at load time.
+
+**Encrypt configuration files at rest.**
+The AES decrypter pipeline integrates directly with any provider. Encrypt a file with the bundled `aescrypt` CLI, point the provider at it, and values are transparently decrypted during `Build()` — with the key itself optionally loaded from a separate source.
+
+**Declare your provider stack in a config file instead of code.**
+The meta-configuration system lets you list providers, their properties, and their decrypters in a `settings.json` or `settings.yaml` file. The provider stack is assembled at runtime without recompiling.
+
+**Come from an ASP.NET Core background.**
+The builder pattern, provider interface, and layered override model are directly inspired by `Microsoft.Extensions.Configuration`. The mental model transfers.
 
 ---
 
