@@ -7,7 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 // EncryptBytesToBase64 encrypts string with secret
@@ -70,7 +70,7 @@ func base64ToBytes(encryptedString string) ([]byte, error) {
 	src := []byte(encryptedString)
 	r := bytes.NewReader(src)
 	input := base64.NewDecoder(base64.StdEncoding, r)
-	data, err := ioutil.ReadAll(input)
+	data, err := io.ReadAll(input)
 	if err != nil {
 		return nil, err
 	}

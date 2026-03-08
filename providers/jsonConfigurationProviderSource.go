@@ -18,7 +18,7 @@ type JSONConfigurationProviderSource struct {
 // NewConfigurationProvider creates JSONConfigurationProvider starting from the provider settings
 func (providerSource *JSONConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
-		return nil, fmt.Errorf("JSONConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
+		return nil, fmt.Errorf("JSONConfigurationProviderSource: settings of configuration source %s has been passed to the configuration source with unique identifier %s", settings.Name, providerSource.GetUniqueIdentifier())
 	}
 
 	filePath := settings.GetPropertyValue("filePath", "").(string)
