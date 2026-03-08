@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"log"
 	"os"
 	"strings"
 
@@ -37,7 +36,7 @@ func (provider *EnvConfigurationProvider) Load(decrypter extensions.IConfigurati
 			value, err = decrypter.Decrypt(value)
 
 			if err != nil {
-				log.Printf("EnvConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				logger.Printf("EnvConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 			}
 		}
 

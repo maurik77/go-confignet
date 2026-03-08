@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"log"
 	"os"
 	"strings"
 
@@ -51,7 +50,7 @@ func (provider *CmdLineConfigurationProvider) Load(decrypter extensions.IConfigu
 			value, err = decrypter.Decrypt(value)
 
 			if err != nil {
-				log.Printf("CmdLineConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				logger.Printf("CmdLineConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 			}
 		}
 
