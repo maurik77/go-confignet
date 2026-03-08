@@ -8,6 +8,8 @@
       "PropertyInt8": 2,
       "PropertyInt16": 3,
       "PropertyInt64": 4,
+      "PropertyFloat32": 1.5,
+      "PropertyFloat64": 2.75,
       "PropertyBool": true,
       "Time": "2022-01-19T10:00:00Z",
       "ArrayStr": ["Test", "Test2"],

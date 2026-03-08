@@ -192,6 +192,14 @@ func fillField(field reflect.Value, value string, index int) {
 			} else {
 				log.Printf("Configuration:Unable to parse Bool the value %v", value)
 			}
+		case float32, float64:
+			if floatValue, err := strconv.ParseFloat(value, 64); err == nil {
+				if field.CanSet() {
+					field.SetFloat(floatValue)
+				}
+			} else {
+				log.Printf("Configuration:Unable to parse Float the value %v", value)
+			}
 		case time.Time:
 			if timeValue, err := time.Parse(time.RFC3339Nano, value); err == nil {
 				if field.CanSet() {

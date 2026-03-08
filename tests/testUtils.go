@@ -16,8 +16,10 @@ type subObj struct {
 	PropertyInt    int
 	PropertyInt8   int8
 	PropertyInt16  int16
-	PropertyInt64  int64
-	PropertyBool   bool
+	PropertyInt64   int64
+	PropertyFloat32 float32
+	PropertyFloat64 float64
+	PropertyBool    bool
 	Time           time.Time
 	ArrayStr       []string
 	ArrayInt       *[3]int
@@ -76,6 +78,16 @@ func validateSubObject(t *testing.T, expected subObj, result subObj) {
 		t.Fail()
 	}
 
+	if result.PropertyFloat32 != expected.PropertyFloat32 {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.PropertyFloat32, result.PropertyFloat32)
+		t.Fail()
+	}
+
+	if result.PropertyFloat64 != expected.PropertyFloat64 {
+		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.PropertyFloat64, result.PropertyFloat64)
+		t.Fail()
+	}
+
 	if result.Time != expected.Time {
 		t.Logf("validateSubObject::error should be '%v', but got '%v'", expected.Time, result.Time)
 		t.Fail()
@@ -121,7 +133,9 @@ func getJSONExpectedValue() myConfig {
 			PropertyInt:    1,
 			PropertyInt8:   2,
 			PropertyInt16:  3,
-			PropertyInt64:  4,
+			PropertyInt64:   4,
+			PropertyFloat32: 1.5,
+			PropertyFloat64: 2.75,
 			PropertyBool:   true,
 			ArrayStr:       []string{"Test", "Test2"},
 			ArrayInt:       &[3]int{1, 2},
