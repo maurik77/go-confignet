@@ -1,7 +1,6 @@
 package confignet
 
 import (
-	"log"
 	"strings"
 
 	"github.com/maurik77/go-confignet/extensions"
@@ -17,13 +16,13 @@ type ChainedConfigurationProvider struct {
 // Add adds the configuration provider to the inner collection
 func (provider *ChainedConfigurationProvider) Add(source extensions.IConfigurationProvider) {
 	provider.configurationProvidersInfo = append(provider.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source})
-	log.Printf("ChainedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
+	logger.Printf("ChainedConfigurationProvider:Added configuration provider '%T', Separator:'%v'\n", source, source.GetSeparator())
 }
 
 // AddWithEncrypter adds the configuration provider and the decrypter to the inner collection
 func (provider *ChainedConfigurationProvider) AddWithEncrypter(source extensions.IConfigurationProvider, decrypter extensions.IConfigurationDecrypter) {
 	provider.configurationProvidersInfo = append(provider.configurationProvidersInfo, extensions.ConfigurationProviderInfo{Provider: source, Decrypter: decrypter})
-	log.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
+	logger.Printf("ConfigurationBuilder:Added configuration provider '%T', Separator:'%v'\n, Decrypter:'%T'", source, source.GetSeparator(), decrypter)
 }
 
 // Load configuration from environment variables
@@ -51,7 +50,7 @@ func (provider *ChainedConfigurationProvider) Load(decrypter extensions.IConfigu
 			value, err := decrypter.Decrypt(values...)
 
 			if err != nil {
-				log.Printf("ChainedConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				logger.Printf("ChainedConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 			} else {
 				provider.data[key] = value
 			}

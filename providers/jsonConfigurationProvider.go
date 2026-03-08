@@ -2,7 +2,6 @@ package providers
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/internal"
@@ -25,7 +24,7 @@ func (provider *JSONConfigurationProvider) Load(decrypter extensions.IConfigurat
 
 	err := internal.UnmarshalFromFile(provider.FilePath, &payload, json.Unmarshal)
 	if err != nil {
-		log.Println("JSONConfigurationProvider:Error during Unmarshal(): ", err)
+		logger.Printf("JSONConfigurationProvider:Error during Unmarshal(): %v", err)
 	}
 
 	provider.data = internal.LoadProperties(provider.GetSeparator(), payload)
@@ -37,7 +36,7 @@ func (provider *JSONConfigurationProvider) Load(decrypter extensions.IConfigurat
 			value, err = decrypter.Decrypt(value)
 
 			if err != nil {
-				log.Printf("JSONConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				logger.Printf("JSONConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 			} else {
 				provider.data[key] = value
 			}

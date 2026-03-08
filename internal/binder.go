@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"log"
 	"reflect"
 	"strconv"
 	"time"
@@ -13,10 +12,10 @@ func Unmarshal(target interface{}, value string, parts ...string) {
 }
 
 func fillObject(parent reflect.Value, value string, parts ...string) {
-	log.Printf("fillObject -> parts: %v, value: %v", parts, value)
+	Logger.Printf("fillObject -> parts: %v, value: %v", parts, value)
 
 	if parent.Kind() != reflect.Struct {
-		log.Printf("Configuration:Parent is not a valid struct %v. Parts %v", parent, parts)
+		Logger.Printf("Configuration:Parent is not a valid struct %v. Parts %v", parent, parts)
 		return
 	}
 
@@ -24,7 +23,7 @@ func fillObject(parent reflect.Value, value string, parts ...string) {
 	nestedField := parent.FieldByName(fieldName)
 
 	if !nestedField.IsValid() {
-		log.Printf("Configuration:Unable to find field %v in the object %v", fieldName, nestedField)
+		Logger.Printf("Configuration:Unable to find field %v in the object %v", fieldName, nestedField)
 		return
 	}
 
@@ -57,17 +56,17 @@ func checkValueOfPointer(field reflect.Value) reflect.Value {
 }
 
 func fillMap(nestedField reflect.Value, value string, parts ...string) {
-	log.Printf("fillMap -> parts: %v, value: %v", parts, value)
+	Logger.Printf("fillMap -> parts: %v, value: %v", parts, value)
 
 	mapKeyType := nestedField.Type().Key()
 	if mapKeyType.Kind() == reflect.Struct {
-		log.Printf("this version is not able to manage maps having struct as key")
+		Logger.Printf("this version is not able to manage maps having struct as key")
 		return
 	}
 
 	mapValueType := nestedField.Type().Elem()
 	key := parts[1]
-	log.Printf("  	mapKeyType: %v, mapValueType: %v, key: %v, value path: %v, value: %v", mapKeyType, mapValueType, key, parts[2:], value)
+	Logger.Printf("  	mapKeyType: %v, mapValueType: %v, key: %v, value path: %v, value: %v", mapKeyType, mapValueType, key, parts[2:], value)
 
 	if nestedField.IsNil() {
 		elemMap := reflect.MakeMap(reflect.MapOf(mapKeyType, mapValueType))
@@ -94,16 +93,16 @@ func fillMap(nestedField reflect.Value, value string, parts ...string) {
 }
 
 func fillArray(nestedField reflect.Value, value string, parts ...string) {
-	log.Printf("fillArray -> parts: %v, value: %v", parts, value)
+	Logger.Printf("fillArray -> parts: %v, value: %v", parts, value)
 
 	index, err := strconv.Atoi(parts[1])
 	if err != nil {
-		log.Printf("Configuration:Unable to parse index %v for path %v in the object %v", parts[1], parts, nestedField)
+		Logger.Printf("Configuration:Unable to parse index %v for path %v in the object %v", parts[1], parts, nestedField)
 		return
 	}
 
 	if index >= nestedField.Len() {
-		log.Printf("Configuration:Unable to assign value %v to the field %v with index %v because is out of range. (Array length  %v)", value, parts[0], index, nestedField.Len())
+		Logger.Printf("Configuration:Unable to assign value %v to the field %v with index %v because is out of range. (Array length  %v)", value, parts[0], index, nestedField.Len())
 		return
 	}
 
@@ -116,11 +115,11 @@ func fillArray(nestedField reflect.Value, value string, parts ...string) {
 }
 
 func fillSlice(nestedField reflect.Value, value string, parts ...string) {
-	log.Printf("fillSlice -> parts: %v, value: %v", parts, value)
+	Logger.Printf("fillSlice -> parts: %v, value: %v", parts, value)
 
 	index, err := strconv.Atoi(parts[1])
 	if err != nil {
-		log.Printf("Configuration:Unable to parse index %v for path %v in the object %v", parts[1], parts, nestedField)
+		Logger.Printf("Configuration:Unable to parse index %v for path %v in the object %v", parts[1], parts, nestedField)
 		return
 	}
 
@@ -147,7 +146,7 @@ func fillSlice(nestedField reflect.Value, value string, parts ...string) {
 }
 
 func fillField(field reflect.Value, value string, index int) {
-	log.Printf("fillField -> index: %v, value: %v, kind: %v", index, value, field.Kind())
+	Logger.Printf("fillField -> index: %v, value: %v, kind: %v", index, value, field.Kind())
 
 	switch field.Kind() {
 	case reflect.Array:
@@ -174,7 +173,7 @@ func fillField(field reflect.Value, value string, index int) {
 					field.SetInt(intValue)
 				}
 			} else {
-				log.Printf("Configuration:Unable to parse Int the value %v", value)
+				Logger.Printf("Configuration:Unable to parse Int the value %v", value)
 			}
 		case uint, uint8, uint16, uint32, uint64:
 			if uintValue, err := strconv.ParseUint(value, 10, 64); err == nil {
@@ -182,7 +181,7 @@ func fillField(field reflect.Value, value string, index int) {
 					field.SetUint(uintValue)
 				}
 			} else {
-				log.Printf("Configuration:Unable to parse Uint the value %v", value)
+				Logger.Printf("Configuration:Unable to parse Uint the value %v", value)
 			}
 		case bool:
 			if boolValue, err := strconv.ParseBool(value); err == nil {
@@ -190,7 +189,7 @@ func fillField(field reflect.Value, value string, index int) {
 					field.SetBool(boolValue)
 				}
 			} else {
-				log.Printf("Configuration:Unable to parse Bool the value %v", value)
+				Logger.Printf("Configuration:Unable to parse Bool the value %v", value)
 			}
 		case float32, float64:
 			if floatValue, err := strconv.ParseFloat(value, 64); err == nil {
@@ -198,7 +197,7 @@ func fillField(field reflect.Value, value string, index int) {
 					field.SetFloat(floatValue)
 				}
 			} else {
-				log.Printf("Configuration:Unable to parse Float the value %v", value)
+				Logger.Printf("Configuration:Unable to parse Float the value %v", value)
 			}
 		case time.Time:
 			if timeValue, err := time.Parse(time.RFC3339Nano, value); err == nil {
@@ -206,7 +205,7 @@ func fillField(field reflect.Value, value string, index int) {
 					field.Set(reflect.ValueOf(timeValue))
 				}
 			} else {
-				log.Printf("Configuration:Unable to parse Time (format: %v) the value %v", time.RFC3339Nano, value)
+				Logger.Printf("Configuration:Unable to parse Time (format: %v) the value %v", time.RFC3339Nano, value)
 			}
 		}
 	}

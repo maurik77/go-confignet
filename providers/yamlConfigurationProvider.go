@@ -1,8 +1,6 @@
 package providers
 
 import (
-	"log"
-
 	"github.com/maurik77/go-confignet/extensions"
 	"github.com/maurik77/go-confignet/internal"
 	"gopkg.in/yaml.v3"
@@ -26,7 +24,7 @@ func (provider *YamlConfigurationProvider) Load(decrypter extensions.IConfigurat
 	err := internal.UnmarshalFromFile(provider.FilePath, &payload, yaml.Unmarshal)
 
 	if err != nil {
-		log.Println("YamlConfigurationProvider:Error during Unmarshal(): ", err)
+		logger.Printf("YamlConfigurationProvider:Error during Unmarshal(): %v", err)
 	}
 
 	provider.data = internal.LoadProperties(provider.GetSeparator(), payload)
@@ -38,7 +36,7 @@ func (provider *YamlConfigurationProvider) Load(decrypter extensions.IConfigurat
 			value, err = decrypter.Decrypt(value)
 
 			if err != nil {
-				log.Printf("YamlConfigurationProvider:Error calling decryption for key %v. %v", key, err)
+				logger.Printf("YamlConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 			} else {
 				provider.data[key] = value
 			}
