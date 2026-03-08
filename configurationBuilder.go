@@ -138,6 +138,33 @@ func (conf *ConfigurationBuilder) configureConfigurationProvidersFromYamlConfig(
 	conf.ConfigureConfigurationProvidersFromSettings(settings)
 }
 
+// errorCollectingLogger wraps an existing logger and records every message it receives.
+type errorCollectingLogger struct {
+	base   extensions.Logger
+	errors []string
+}
+
+func (l *errorCollectingLogger) Printf(format string, args ...interface{}) {
+	l.base.Printf(format, args...)
+	l.errors = append(l.errors, fmt.Sprintf(format, args...))
+}
+
+// BuildOrPanic calls Build and panics if any error is logged during provider loading.
+// Use this when missing or invalid configuration should be treated as a fatal programmer error.
+func (conf *ConfigurationBuilder) BuildOrPanic() extensions.IConfiguration {
+	el := &errorCollectingLogger{base: logger}
+	SetLogger(el)
+	defer SetLogger(el.base)
+
+	result := conf.Build()
+
+	if len(el.errors) > 0 {
+		panic("confignet: BuildOrPanic failed:\n" + strings.Join(el.errors, "\n"))
+	}
+
+	return result
+}
+
 // Build invokes the load function of each configuration provider and return the Configuration object
 func (conf *ConfigurationBuilder) Build() extensions.IConfiguration {
 	for _, confProvider := range conf.configurationProvidersInfo {
