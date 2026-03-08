@@ -18,7 +18,7 @@ type EnvConfigurationProviderSource struct {
 // NewConfigurationProvider creates EnvConfigurationProvider starting from the provider settings
 func (providerSource *EnvConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
-		return nil, fmt.Errorf("EnvConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
+		return nil, fmt.Errorf("EnvConfigurationProviderSource: settings of configuration source %s has been passed to the configuration source with unique identifier %s", settings.Name, providerSource.GetUniqueIdentifier())
 	}
 
 	prefix := settings.GetPropertyValue("prefix", "").(string)

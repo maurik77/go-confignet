@@ -18,7 +18,7 @@ type KeyVaultConfigurationProviderSource struct {
 // NewConfigurationProvider creates KeyVaultConfigurationProvider starting from the provider settings
 func (providerSource *KeyVaultConfigurationProviderSource) NewConfigurationProvider(settings extensions.ProviderSettings) (extensions.IConfigurationProvider, error) {
 	if settings.Name != providerSource.GetUniqueIdentifier() {
-		return nil, fmt.Errorf("KeyVaultConfigurationProviderSource: settings of configuration source " + settings.Name + " has been passed to the configuration source with unique identifier " + providerSource.GetUniqueIdentifier())
+		return nil, fmt.Errorf("KeyVaultConfigurationProviderSource: settings of configuration source %s has been passed to the configuration source with unique identifier %s", settings.Name, providerSource.GetUniqueIdentifier())
 	}
 
 	prefix := settings.GetPropertyValue("prefix", "").(string)

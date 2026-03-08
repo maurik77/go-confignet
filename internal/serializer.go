@@ -3,7 +3,6 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -14,7 +13,7 @@ func UnmarshalFromFile(path string, target interface{}, unmarshal func(in []byte
 		return fmt.Errorf("UnmarshalFromFile:File not found %v", path)
 	}
 
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 
 	if err != nil {
 		return fmt.Errorf("UnmarshalFromFile:Error when opening file '%v': '%v'", path, err)
@@ -38,7 +37,7 @@ func MarshalToFile(path string, source interface{}, marshal func(v interface{}) 
 	}
 
 	// #nosec G306
-	err = ioutil.WriteFile(path, data, 0644)
+	err = os.WriteFile(path, data, 0644)
 
 	return err
 }
