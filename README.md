@@ -1,352 +1,612 @@
 # go-confignet
 
-The Configuration Framework is a module that provides a way to read configuration data from a variety of sources using configuration providers. This framework is freely inspired by the asp.net Configuration framework.
+A Go configuration framework that reads configuration data from multiple sources using pluggable providers. Freely inspired by the ASP.NET Core Configuration framework.
 
-## Configuration Providers
+## Installation
 
-Configuration providers read configuration data from key-value pairs (map[string]string) using a variety of configuration sources, including:
-
-- [Json Files](#json)
-- [Yaml Files](#yaml)
-- [Environment Variables](#environment-variables)
-- [Command line arguments](#command-line-arguments)
-- [Azure Key Vault](#azure-key-vault)
-- [Splitted Secrets](#splitted-secrets)
-- Custom providers
-
-## Usage
-
-Using the Configuration Framework is simple and can be broken down into a few simple steps:
-
-1. Create a struct that represents the configuration.
-2. Create a configuration builder.
-3. Add one or more configuration providers, each with its own configuration.
-4. Build the configuration to retrieve a configuration struct.
-5. Invoke the Configuration.Bind function to apply the configuration to your custom object.
-
-## Getting Started
-
-Simple configuration struct example
-
-```go
-type MyConfig struct {
-    Obj1 SubObj
-}
-
-type SubObj struct {
-    PropertyString string
-    PropertyInt    int
-    PropertyInt8   int8
-    PropertyInt16  int16
-    PropertyInt64  int64
-    PropertyBool   bool
-    Time           time.Time
-}
-
-type subObjItem struct {
-    PropertyString string
-    PropertyInt    int
-    PropertyBool   bool
-}
+```bash
+go get github.com/maurik77/go-confignet
 ```
 
-Complex configuration struct example
+Requires **Go 1.18** or later.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [How It Works](#how-it-works)
+- [Built-in Providers](#built-in-providers)
+  - [JSON](#json)
+  - [YAML](#yaml)
+  - [Environment Variables](#environment-variables)
+  - [Command Line Arguments](#command-line-arguments)
+  - [Azure Key Vault](#azure-key-vault)
+  - [Split Secrets (Shamir)](#split-secrets-shamir)
+  - [AES Encryption](#aes-encryption)
+- [Meta-Configuration](#meta-configuration)
+- [Supported Field Types](#supported-field-types)
+- [Provider Override Order](#provider-override-order)
+- [Custom Providers](#custom-providers)
+
+---
+
+## Quick Start
 
 ```go
-type myConfig struct {
-    Obj1         *subObj
-    PropertyInt8 *int8
-}
+package main
 
-type subObj struct {
-    PropertyString string
-    PropertyInt    int
-    PropertyInt8   int8
-    PropertyInt16  int16
-    PropertyInt64  int64
-    PropertyBool   bool
-    Time           time.Time
-    ArrayStr       []string
-    ArrayInt       *[3]int
-    ArrayObj       []subObjItem
-    ArrayObjPtr    []*subObjItem
-    MapStr         map[string]string
-    MapInt         map[int]int
-    MapObj         map[int]subObjItem
-    MapObjPtr      map[bool]*subObjItem
-}
+import (
+    "fmt"
+    confignet "github.com/maurik77/go-confignet"
+)
 
-type subObjItem struct {
-    PropertyString string
-    PropertyInt    int
-    PropertyBool   bool
-}
-```
-
-Basic usage example:
-
-```go
-// Default configuration providers:
-// Bind applies the configuration to the given object using the default configuration providers(AddDefaultConfigurationProviders)
-
-myCfg := MyConfig{}
-confignet.Bind("config", &myCfg)
-```
-
-Intermediate usage example:
-
-```go
-var confBuilder confignet.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-
-// AddDefaultConfigurationProviders will add:
-// 1. JsonConfigurationProvider: default file name app.json
-// 2. YamlConfigurationProvider: default file name app.yaml
-// 3. EnvConfigurationProvider
-// 4. CmdLineConfigurationProvider
-// 5. KeyVaultConfigurationProvider: connection settings will be retrieved from the environment variables:
-//      AZURE_TENANT_ID
-//      AZURE_CLIENT_ID
-//      AZURE_CLIENT_SECRET
-//      AZURE_CLIENT_CERTIFICATE_PATH
-//      AZURE_USERNAME
-//      AZURE_PASSWORD
-confBuilder.AddDefaultConfigurationProviders()
-
-conf := confBuilder.Build()
-
-myCfg := MyConfig{}
-conf.Bind("config", &myCfg)
-```
-
-## Configuration Provider
-
-A configuration provider is responsible for reading the configuration from a specific source. It must implement the following interface:
-
-```go
-// IConfigurationProvider is configuration provider interface
-type IConfigurationProvider interface {
- Load()
- GetData() map[string]string
- GetSeparator() string
-}
-```
-
-### Load function
-
-The "Load" function is invoked by the configuration builder when the "build" function is called. The function loads the configuration and stores the information in a map of type map[string]string. The key of the map contains the configuration name, the value of the map the value of the configuration.
-Usually the execution of the function should be safe, it means that should never throw an error. Yaml and Json configuration providers, for instance, write in the standard error stream the reason if they cannot find the file or if they are not able to read it correctly.
-
-Configuration keys:
-
-- Are case-sensitive. For example, ConnectionString and connectionstring are treated as different keys.
-- If a key and value is set in more than one configuration providers, the value from the last provider added is used.
-- Hierarchical configuration must be represented in flat way in the map. The key will be made concatenating all chained properties with a specific separator. The separator is specific of every configuration provider.
-
-Configuration values:
-
-- Are strings.
-
-Let's take as example the configuration:
-
-```go
-type MyConfig struct {
-  Obj1 struct {
-    PropertyString string
-    PropertyInt    int
-    PropertyBool   bool
-    Time           time.Time
-    Obj2           struct {
-       PropertyInt int
+type AppConfig struct {
+    Database struct {
+        Host string
+        Port int
     }
-  }
-  PropertyString string
-  PropertyInt    int
-  PropertyBool   bool
-  Time           time.Time
+}
+
+func main() {
+    cfg := AppConfig{}
+    confignet.Bind("app", &cfg) // reads app.json, app.yaml, env vars, and command line
+    fmt.Println(cfg.Database.Host)
 }
 ```
 
-Let's assume that the configuration provider uses ":" as separator, the map will contain:
+`confignet.Bind` uses the default provider stack (JSON → YAML → ENV → CmdLine → KeyVault). Each provider overrides values set by the previous one, so environment variables take precedence over files.
 
-| OOP dotted notation (myConfig struct) | Map Key                   | Map Value    |
-| ------------------------------------- | ------------------------- | ------------ |
-| myConfig.PropertyString               | **PropertyString**        | "text"       |
-| myConfig.PropertyInt                  | **PropertyInt**           | "3"          |
-| myConfig.PropertyBool                 | **PropertyBool**          | "true"       |
-| myConfig.Time                         | **Time**                  | "2022-01-01" |
-| myConfig.Obj1.PropertyString          | **Obj1:PropertyString**   | "text2"      |
-| myConfig.Obj1.PropertyInt             | **Obj1:PropertyInt**      | "55"         |
-| myConfig.Obj1.PropertyBool            | **Obj1:PropertyBool**     | "false"      |
-| myConfig.Obj1.Time                    | **Obj1:Time**             | "2022-05-01" |
-| myConfig.Obj1.Obj2.PropertyInt        | **Obj1:Obj2:PropertyInt** | "33"         |
+---
 
-### GetData function
+## How It Works
 
-"GetData" function must return the map populated by the "Load" function
+### Core flow
 
-### GetSeparator function
+```
+ConfigurationBuilder  →  Build()  →  Configuration  →  Bind(section, &struct)
+        │                                  │
+        │  .Add(provider)           iterates providers,
+        │  .AddWithEncrypter(       calls filterProperties,
+        │    provider, decrypter)   then binds the flat map to the struct
+        │
+    IConfigurationProvider.Load(decrypter)
+        → populates map[string]string
+```
 
-"GetSeparator" function must return the separator used by the configuration provider.
+### Separators
 
-## Built-in Configuration Providers
+Each provider uses its own natural key separator. `Bind` translates between them transparently.
 
-### Json
+| Provider           | Separator | Example key                      |
+|--------------------|-----------|----------------------------------|
+| JSON / YAML        | `.`       | `app.Database.Host`              |
+| Environment        | `__`      | `app__Database__Host`            |
+| Command line       | `-`       | `app-Database-Host`              |
+| Azure Key Vault    | `--`      | `app--Database--Host`            |
 
-JSONConfigurationProvider loads configuration from JSON file. It uses "." (dot) as separator for hierarchical configuration. It exposes just one public property: the file path. If the path is not provided the default value "app.json" is used.
+### Sections
+
+`Bind` accepts a section prefix so you can bind a subsection directly:
 
 ```go
-// JSONConfigurationProvider loads configuration from JSON file key-value pairs
-type JSONConfigurationProvider struct {
-   FilePath string
+// bind the entire config
+conf.Bind("app", &appCfg)
+
+// bind just the database sub-section
+dbCfg := DatabaseConfig{}
+conf.Bind("app/Database", &dbCfg)
+```
+
+Use `/` as the section separator regardless of which providers are active — the framework translates it automatically.
+
+### GetValue
+
+Retrieve a single value without binding to a struct:
+
+```go
+host := conf.GetValue("app/Database/Host")
+```
+
+### Provider interface
+
+A configuration provider must implement:
+
+```go
+type IConfigurationProvider interface {
+    Load(decrypter IConfigurationDecrypter)
+    GetData() map[string]string
+    GetSeparator() string
 }
 ```
 
-Example:
+`Load` is called once during `Build()`. It populates an internal `map[string]string` where keys use the provider's separator for hierarchy. Errors (e.g. file not found) are logged and the provider returns an empty map — the rest of the stack still works.
+
+### Key rules
+
+- Keys are **case-sensitive**: `Database` and `database` are different keys.
+- If the same key exists in multiple providers, the **last provider wins**.
+- All values are stored and returned as **strings**.
+
+---
+
+## Built-in Providers
+
+### JSON
+
+Loads configuration from a JSON file. Separator: `.`
+
+```go
+type JSONConfigurationProvider struct {
+    FilePath string // default: "app.json"
+}
+```
+
+**Example file:**
 
 ```json
 {
-  "config": {
+  "app": {
     "PropertyInt8": 45,
-    "Obj1": {
-      "PropertyString": "TestObj1",
-      "PropertyInt": 1,
-      "PropertyBool": true,
-      "Time": "2022-01-01"
+    "Database": {
+      "Host": "localhost",
+      "Port": 5432
     }
   }
 }
 ```
 
-Map:
+**Resulting map:**
 
-| Map Key                        | Map Value    |
-| ------------------------------ | ------------ |
-| **config.PropertyInt8**        | "45"         |
-| **config.Obj1.PropertyString** | "TestObj1"   |
-| **config.Obj1.PropertyInt**    | "1"          |
-| **config.Obj1.PropertyBool**   | "true"       |
-| **config.Obj1.Time**           | "2022-01-01" |
+| Key                    | Value       |
+|------------------------|-------------|
+| `app.PropertyInt8`     | `"45"`      |
+| `app.Database.Host`    | `"localhost"` |
+| `app.Database.Port`    | `"5432"`    |
 
-### Yaml
-
-YamlConfigurationProvider loads configuration from YAML file. It uses "." (dot) as separator for hierarchical configuration. It exposes just one public property: the file path. If the path is not provided the default value "app.yaml" is used.
+**Usage:**
 
 ```go
-// YamlConfigurationProvider loads configuration from YAML file key-value pairs
+confBuilder.Add(&providers.JSONConfigurationProvider{FilePath: "config/app.json"})
+```
+
+---
+
+### YAML
+
+Loads configuration from a YAML file. Separator: `.`
+
+```go
 type YamlConfigurationProvider struct {
-  FilePath string
+    FilePath string // default: "app.yaml"
 }
 ```
 
-Example:
+**Example file:**
+
+```yaml
+app:
+  PropertyInt8: 45
+  Database:
+    Host: localhost
+    Port: 5432
+```
+
+**Usage:**
+
+```go
+confBuilder.Add(&providers.YamlConfigurationProvider{FilePath: "config/app.yaml"})
+```
+
+---
+
+### Environment Variables
+
+Loads configuration from environment variables. Separator: `__` (double underscore).
+
+```go
+type EnvConfigurationProvider struct {
+    Prefix       string // optional: only load vars that start with this prefix
+    RemovePrefix bool   // if true, strip the prefix from the key
+}
+```
+
+**Example:**
+
+```bash
+export app__Database__Host=localhost
+export app__Database__Port=5432
+```
+
+**Usage:**
+
+```go
+// Load all environment variables
+confBuilder.Add(&providers.EnvConfigurationProvider{})
+
+// Load only vars prefixed with "MYAPP__", strip the prefix
+confBuilder.Add(&providers.EnvConfigurationProvider{
+    Prefix:       "MYAPP__",
+    RemovePrefix: true,
+})
+```
+
+**Array and map indexing via environment variables:**
+
+```bash
+export app__Items__0__Name=first
+export app__Items__1__Name=second
+export app__Tags__production=true
+```
+
+---
+
+### Command Line Arguments
+
+Loads configuration from command line arguments in the form `key=value` or `-key=value`. Separator: `-`.
+
+```go
+type CmdLineConfigurationProvider struct {
+    Prefix       string                // optional: only load args that start with this prefix
+    RemovePrefix bool                  // if true, strip the prefix from the key
+    KeyMapper    func(arg string) string // optional: custom key transformation
+}
+```
+
+**Example:**
+
+```bash
+./myapp -app-Database-Host=localhost -app-Database-Port=5432
+```
+
+**Resulting map:**
+
+| Key                   | Value       |
+|-----------------------|-------------|
+| `app-Database-Host`   | `"localhost"` |
+| `app-Database-Port`   | `"5432"`    |
+
+**Usage:**
+
+```go
+confBuilder.Add(&providers.CmdLineConfigurationProvider{})
+```
+
+---
+
+### Azure Key Vault
+
+Loads secrets from Azure Key Vault. Separator: `--` (double hyphen, because Key Vault secret names only allow alphanumeric characters and hyphens).
+
+```go
+type KeyVaultConfigurationProvider struct {
+    BaseURL      string // Key Vault URL, e.g. "https://myvault.vault.azure.net"
+    TenantID     string // optional: Azure tenant ID for service principal auth
+    ClientID     string // optional: Azure client ID for service principal auth
+    ClientSecret string // optional: Azure client secret for service principal auth
+    Prefix       string // optional: only load secrets that start with this prefix
+    RemovePrefix bool   // if true, strip the prefix from the key
+}
+```
+
+**Authentication:**
+- If `TenantID`, `ClientID`, and `ClientSecret` are all set, service principal authentication is used.
+- Otherwise, `DefaultAzureCredential` is used, which tries the following in order:
+  - `AZURE_TENANT_ID` / `AZURE_CLIENT_ID` / `AZURE_CLIENT_SECRET`
+  - `AZURE_CLIENT_CERTIFICATE_PATH`
+  - `AZURE_USERNAME` / `AZURE_PASSWORD`
+  - Workload identity, managed identity, Azure CLI, and more.
+
+**Secret naming convention:**
+
+Since Key Vault names use `-` as separator, a secret named `app--Database--Host` maps to the `Database.Host` field in the `app` section:
+
+```
+app--Database--Host  →  app / Database / Host
+```
+
+**Usage:**
+
+```go
+// Service principal
+confBuilder.Add(&providers.KeyVaultConfigurationProvider{
+    BaseURL:      "https://myvault.vault.azure.net",
+    TenantID:     "00000000-...",
+    ClientID:     "00000000-...",
+    ClientSecret: os.Getenv("KV_SECRET"),
+})
+
+// DefaultAzureCredential (recommended for production)
+confBuilder.Add(&providers.KeyVaultConfigurationProvider{
+    BaseURL: "https://myvault.vault.azure.net",
+})
+```
+
+---
+
+### Split Secrets (Shamir)
+
+Implements [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing): a secret is split into N shares stored in separate files or vaults. Any K-of-N shares are sufficient to reconstruct it. No single share reveals the secret.
+
+This is implemented using `ChainedConfigurationProvider` (which collects multiple values for the same key) combined with `ShamirConfigurationDecrypter`.
+
+**Generating shares** (using the `go-shamir` library directly or any compatible tool):
+
+```go
+import "github.com/lafriks/go-shamir"
+
+shares, _ := shamir.Split([]byte("my secret value"), 3, 2) // 3 shares, 2 required
+```
+
+Store each share (base64-encoded) in a separate file or vault under the same key name.
+
+**Usage (2-of-3 shares from two files):**
+
+```go
+var confBuilder extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+var chained extensions.IChainedConfigurationProvider = &confignet.ChainedConfigurationProvider{}
+
+chained.Add(&providers.YamlConfigurationProvider{FilePath: "shares/share-1.yaml"})
+chained.Add(&providers.JSONConfigurationProvider{FilePath: "shares/share-2.json"})
+// share-3 is kept separately; any two of the three are sufficient
+
+confBuilder.AddWithEncrypter(chained, &decrypters.ShamirConfigurationDecrypter{})
+conf := confBuilder.Build()
+```
+
+**Share file format** (`share-1.yaml`):
 
 ```yaml
 config:
-  PropertyInt8: 45
   Obj1:
-    PropertyString: "TestObj1"
-    PropertyInt: 1
-    PropertyBool: true
+    PropertyString: "<base64-encoded share>"
 ```
 
-Map:
+---
 
-| Map Key                        | Map Value  |
-| ------------------------------ | ---------- |
-| **config.PropertyInt8**        | "45"       |
-| **config.Obj1.PropertyString** | "TestObj1" |
-| **config.Obj1.PropertyInt**    | "1"        |
-| **config.Obj1.PropertyBool**   | "true"     |
+### AES Encryption
 
-### Environment variables
+Encrypts configuration values at rest using AES-256. Values are encrypted with the `aescrypt` CLI tool and decrypted at runtime by `AesConfigurationDecrypter`.
 
-EnvConfigurationProvider loads configuration from environment variables. It uses "\_\_" (double underscore) as separator for hierarchical configuration. It exposes the following properties that change the behavior of the provider.
+#### Step 1 — Encrypt a config file
+
+Build and run the `aescrypt` CLI tool:
+
+```bash
+go build ./cli/
+./aescrypt -config app.json -configType json -secret mysecretkey -dest app-encrypted.json
+```
+
+#### Step 2 — Wire the decrypter
 
 ```go
-// EnvConfigurationProvider loads configuration from environment variables
-type EnvConfigurationProvider struct {
-  Prefix       string
-  RemovePrefix bool
+confBuilder.AddWithEncrypter(
+    &providers.JSONConfigurationProvider{FilePath: "app-encrypted.json"},
+    &decrypters.AesConfigurationDecrypter{Secret: "mysecretkey"},
+)
+```
+
+**Loading the secret from another config source:**
+
+To avoid hardcoding the secret, `AesConfigurationDecrypter` can fetch it from a separate configuration at init time:
+
+```go
+&decrypters.AesConfigurationDecrypter{
+    ConfigFileType:   "yaml",
+    ConfigFilePath:   "secrets.yaml",
+    SecretConfigPath: "vault/aesKey",
 }
 ```
 
-Properties:
+---
 
-- Prefix (optional): if set only the environment variables starting with the Prefix value will be loaded. E.g.:
-  - Prefix value: "secrets"
-  - Environment Variables:
-    - secrets\_\_cred\_\_password=pwd123
-    - cred\_\_username=test1
-  - Map: only secrets\_\_cred\_\_password is loaded
-    - Key: secrets\_\_cred\_\_password
-    - Value: pwd123
-- RemovePrefix (optional): It is ignored if Prefix is not set. If set to true the environment variable will be added to the map removing from the key the prefix value and the first separator. E.g. using as example the previous settings:
-  - RemovePrefix: true
-  - Map: only secrets\_\_cred\_\_password is loaded
-    - Key: cred\_\_password
-    - Value: pwd123
+## Meta-Configuration
 
-Example:
+Instead of wiring providers in code, you can declare them in a `settings.json` or `settings.yaml` file and load them dynamically. This is useful for changing provider configuration without recompiling.
 
-```bash
-# Environment variables
-export config__PropertyInt8=45
-export config__Obj1__PropertyString=TestObj1
-export config__Obj1__PropertyInt=1
-export config__Obj1__PropertyBool=true
-```
-
-Map:
-
-| Map Key                              | Map Value  |
-| ------------------------------------ | ---------- |
-| **config\_\_PropertyInt8**           | "45"       |
-| **config\_\_Obj1\_\_PropertyString** | "TestObj1" |
-| **config\_\_Obj1\_\_PropertyInt**    | "1"        |
-| **config\_\_Obj1\_\_PropertyBool**   | "true"     |
-
-### Command line arguments
-
-CmdConfigurationProvider loads configuration from the command line arguments. It uses "-" (hyphen) as separator for hierarchical configuration. It exposes the following properties that change the behavior of the provider.
+**Loading from a file:**
 
 ```go
-// EnvConfigurationProvider loads configuration from environment variables
-type CmdLineConfigurationProvider struct {
- Prefix       string
- RemovePrefix bool
+confBuilder.ConfigureConfigurationProviders("json", "settings.json")
+// or
+confBuilder.ConfigureConfigurationProviders("yaml", "settings.yaml")
+```
+
+**Loading from environment variables** (reads `confignet_configfiletype` and `confignet_configfilepath`):
+
+```bash
+export confignet_configfiletype=json
+export confignet_configfilepath=settings.json
+```
+
+```go
+confBuilder.ConfigureConfigurationProvidersFromEnv()
+```
+
+**`settings.json` format:**
+
+```json
+{
+  "providers": [
+    {
+      "name": "json",
+      "properties": { "filePath": "app.json" }
+    },
+    {
+      "name": "yaml",
+      "properties": { "filePath": "app.yaml" }
+    },
+    {
+      "name": "env",
+      "properties": {}
+    },
+    {
+      "name": "cmdline",
+      "properties": {}
+    },
+    {
+      "name": "keyvault",
+      "properties": {
+        "baseURL": "https://myvault.vault.azure.net"
+      }
+    },
+    {
+      "name": "json",
+      "properties": { "filePath": "app-encrypted.json" },
+      "decrypter": {
+        "name": "aes",
+        "properties": { "secret": "mysecretkey" }
+      }
+    },
+    {
+      "name": "chained",
+      "decrypter": { "name": "shamir" },
+      "providers": [
+        { "name": "yaml", "properties": { "filePath": "shares/share-1.yaml" } },
+        { "name": "json", "properties": { "filePath": "shares/share-2.json" } }
+      ]
+    }
+  ]
 }
 ```
 
-Properties:
+**Built-in provider names:**
 
-- Prefix (optional): if set only the environment variables starting with the Prefix value will be loaded. E.g.:
-  - Prefix value: "secrets"
-  - Command line arguments:
-    - secrets-cred-password=pwd123
-    - cred-username=test1
-  - Map: only secrets-cred-password is loaded
-    - Key: secrets-cred-password
-    - Value: pwd123
-- RemovePrefix (optional): It is ignored if Prefix is not set. If set to true the environment variable will be added to the map removing from the key the prefix value and the first separator. E.g. using as example the previous settings:
-  - RemovePrefix: true
-  - Map: only secrets-cred-password is loaded
-    - Key: cred-password
-    - Value: pwd123
+| Name       | Provider                         |
+|------------|----------------------------------|
+| `json`     | JSONConfigurationProvider        |
+| `yaml`     | YamlConfigurationProvider        |
+| `env`      | EnvConfigurationProvider         |
+| `cmdline`  | CmdLineConfigurationProvider     |
+| `keyvault` | KeyVaultConfigurationProvider    |
+| `chained`  | ChainedConfigurationProvider     |
 
-Example:
+**Built-in decrypter names:**
+
+| Name     | Decrypter                      |
+|----------|-------------------------------|
+| `aes`    | AesConfigurationDecrypter     |
+| `shamir` | ShamirConfigurationDecrypter  |
+
+---
+
+## Supported Field Types
+
+The binder maps string values to the following Go types:
+
+| Go type                              | Notes                                          |
+|--------------------------------------|------------------------------------------------|
+| `string`                             |                                                |
+| `int`, `int8`, `int16`, `int32`, `int64` |                                            |
+| `uint`, `uint8`, `uint16`, `uint32`, `uint64` |                                       |
+| `float32`, `float64`                 |                                                |
+| `bool`                               | Accepts `true`, `false`, `1`, `0`, etc.        |
+| `time.Time`                          | Must be RFC3339Nano format, e.g. `2006-01-02T15:04:05.999999999Z` |
+| Nested structs                       |                                                |
+| Slices (`[]T`)                       | Indexed with `__0__`, `__1__`, ...             |
+| Fixed arrays (`[N]T`)                | Indexed with `__0__`, `__1__`, ...             |
+| Maps (`map[K]V`)                     | Key inserted between separators, e.g. `__mykey__` |
+| Pointers to any of the above         | Allocated automatically if nil                 |
+
+**Slice/array example:**
 
 ```bash
-# Command line arguments
-[Exe path] -config-PropertyInt8 45 -config-Obj1-PropertyString TestObj1 -config-Obj1-PropertyInt 1 -config-Obj1-PropertyBool true
+# environment variables
+export app__Items__0__Name=first
+export app__Items__1__Name=second
 ```
 
-Map:
+```go
+type Config struct {
+    Items []Item
+}
+type Item struct {
+    Name string
+}
+```
 
-| Map Key                        | Map Value  |
-| ------------------------------ | ---------- |
-| **config-PropertyInt8**        | "45"       |
-| **config-Obj1-PropertyString** | "TestObj1" |
-| **config-Obj1-PropertyInt**    | "1"        |
-| **config-Obj1-PropertyBool**   | "true"     |
+**Map example:**
 
-### Azure Key Vault
+```bash
+export app__Scores__alice=100
+export app__Scores__bob=200
+```
+
+```go
+type Config struct {
+    Scores map[string]int
+}
+```
+
+---
+
+## Provider Override Order
+
+Providers are applied in the order they are added. The **last provider to set a key wins**. This is the standard pattern for environment-specific overrides:
+
+```go
+confBuilder.Add(&providers.JSONConfigurationProvider{})   // base defaults
+confBuilder.Add(&providers.YamlConfigurationProvider{})   // optional overrides
+confBuilder.Add(&providers.EnvConfigurationProvider{})    // deployment overrides
+confBuilder.Add(&providers.CmdLineConfigurationProvider{}) // highest priority
+conf := confBuilder.Build()
+```
+
+A value set via environment variable will override the same value from a JSON file. A command line argument overrides everything.
+
+---
+
+## Custom Providers
+
+Implement `IConfigurationProvider` to add your own source:
+
+```go
+package myprovider
+
+import "github.com/maurik77/go-confignet/extensions"
+
+type MyConfigurationProvider struct {
+    data map[string]string
+}
+
+func (p *MyConfigurationProvider) Load(decrypter extensions.IConfigurationDecrypter) {
+    p.data = map[string]string{
+        "app.MyKey": "myValue",
+    }
+
+    if decrypter != nil {
+        for key, value := range p.data {
+            if decrypted, err := decrypter.Decrypt(value); err == nil {
+                p.data[key] = decrypted
+            }
+        }
+    }
+}
+
+func (p *MyConfigurationProvider) GetData() map[string]string { return p.data }
+func (p *MyConfigurationProvider) GetSeparator() string       { return "." }
+```
+
+**Register for meta-configuration support:**
+
+To make your provider available by name in `settings.json`, implement `IConfigurationSource` and register it at init time:
+
+```go
+type MyConfigurationProviderSource struct{}
+
+func (s *MyConfigurationProviderSource) GetUniqueIdentifier() string { return "myprovider" }
+
+func (s *MyConfigurationProviderSource) NewConfigurationProvider(
+    settings extensions.ProviderSettings,
+) (extensions.IConfigurationProvider, error) {
+    return &MyConfigurationProvider{}, nil
+}
+
+func init() {
+    confignet.RegisterConfigurationSource(&MyConfigurationProviderSource{})
+}
+```
+
+Once registered, use it in `settings.json`:
+
+```json
+{ "name": "myprovider", "properties": {} }
+```
