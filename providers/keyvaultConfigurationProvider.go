@@ -2,12 +2,11 @@ package providers
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
+	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets"
 	"github.com/maurik77/go-confignet/extensions"
 )
 
@@ -27,22 +26,31 @@ func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfig
 	provider.data = make(map[string]string)
 
 	cred, err := provider.getCredential()
-
 	if err != nil {
 		logger.Printf("KeyVaultConfigurationProvider:Unable to retrieve the token with the provided credentials")
+		return
 	}
 
 	client, err := azsecrets.NewClient(provider.BaseURL, cred, nil)
-
 	if err != nil {
 		logger.Printf("KeyVaultConfigurationProvider:Unable to connect to keyvault with the provided credentials and base url %v", provider.BaseURL)
+		return
 	}
 
-	pager := client.ListSecrets(nil)
-	for pager.NextPage(context.Background()) {
-		resp := pager.PageResponse()
-		for _, secret := range resp.Secrets {
-			key := strings.TrimPrefix(*secret.ID, fmt.Sprintf("%v/secrets/", provider.BaseURL))
+	pager := client.NewListSecretPropertiesPager(nil)
+	for pager.More() {
+		page, err := pager.NextPage(context.Background())
+		if err != nil {
+			logger.Printf("KeyVaultConfigurationProvider:Error listing secrets. %v", err)
+			break
+		}
+
+		for _, secretProp := range page.Value {
+			if secretProp.ID == nil {
+				continue
+			}
+
+			key := secretProp.ID.Name()
 
 			if provider.Prefix != "" && !strings.HasPrefix(key, provider.Prefix) {
 				continue
@@ -52,9 +60,13 @@ func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfig
 				key = strings.TrimPrefix(key, provider.Prefix)
 			}
 
-			resp, err := client.GetSecret(context.Background(), key, nil)
+			resp, err := client.GetSecret(context.Background(), secretProp.ID.Name(), "", nil)
 			if err != nil {
 				logger.Printf("KeyVaultConfigurationProvider:Error retrieving key %v. %v", key, err)
+				continue
+			}
+
+			if resp.Value == nil {
 				continue
 			}
 
@@ -63,7 +75,6 @@ func (provider *KeyVaultConfigurationProvider) Load(decrypter extensions.IConfig
 			if decrypter != nil {
 				var err error
 				value, err = decrypter.Decrypt(value)
-
 				if err != nil {
 					logger.Printf("KeyVaultConfigurationProvider:Error calling decryption for key %v. %v", key, err)
 				}
