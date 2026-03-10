@@ -6,8 +6,9 @@ import (
 )
 
 // IsValidPath reports whether the sequence of parts navigates to a known
-// field (or element) inside the type t. It is used by BindStrict to detect
-// configuration keys that have no matching struct field.
+// field (or element) inside the type t, respecting confignet struct tags.
+// It is used by BindStrict to detect configuration keys that have no
+// matching struct field.
 func IsValidPath(t reflect.Type, parts []string) bool {
 	for t.Kind() == reflect.Ptr {
 		t = t.Elem()
@@ -22,11 +23,11 @@ func IsValidPath(t reflect.Type, parts []string) bool {
 
 	switch t.Kind() {
 	case reflect.Struct:
-		field, ok := t.FieldByName(part)
+		idx, ok := typeFieldIndex(t, part)
 		if !ok {
 			return false
 		}
-		return IsValidPath(field.Type, rest)
+		return IsValidPath(t.Field(idx).Type, rest)
 	case reflect.Slice, reflect.Array:
 		if _, err := strconv.Atoi(part); err != nil {
 			return false

@@ -1,0 +1,12 @@
+{
+  "service": {
+    "host": "db-host",
+    "port": 5432,
+    "debug": false,
+    "rate": 1.0,
+    "database": {
+      "name": "mydb",
+      "connection_timeout": 30
+    }
+  }
+}
