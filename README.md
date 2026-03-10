@@ -18,6 +18,7 @@ Requires **Go 1.18** or later.
 - [Built-in Providers](#built-in-providers)
   - [JSON](#json)
   - [YAML](#yaml)
+  - [TOML](#toml)
   - [Environment Variables](#environment-variables)
   - [Command Line Arguments](#command-line-arguments)
   - [Azure Key Vault](#azure-key-vault)
@@ -69,6 +70,9 @@ The meta-configuration system lets you list providers, their properties, and the
 
 **Come from an ASP.NET Core background.**
 The builder pattern, provider interface, and layered override model are directly inspired by `Microsoft.Extensions.Configuration`. The mental model transfers.
+
+**Want predictable, explicit key matching.**
+go-confignet is case-sensitive by design. `Database.Host` and `database.host` are distinct keys, exactly as they are in Go struct field names. Some libraries silently fold all keys to lowercase — a convenience that creates subtle bugs when two keys differ only by case, and unexpected behaviour when working with secrets or provider-specific naming conventions. go-confignet never normalises your keys behind your back.
 
 ---
 
@@ -238,6 +242,45 @@ app:
 ```go
 confBuilder.Add(&providers.YamlConfigurationProvider{FilePath: "config/app.yaml"})
 ```
+
+---
+
+### TOML
+
+Loads configuration from a TOML file. Separator: `.`
+
+```go
+type TomlConfigurationProvider struct {
+    FilePath string // default: "app.toml"
+}
+```
+
+**Example file:**
+
+```toml
+[app]
+PropertyInt8 = 45
+
+[app.Database]
+Host = "localhost"
+Port = 5432
+
+[[app.Items]]
+Name  = "first"
+Value = 10
+
+[[app.Items]]
+Name  = "second"
+Value = 20
+```
+
+**Usage:**
+
+```go
+confBuilder.Add(&providers.TomlConfigurationProvider{FilePath: "config/app.toml"})
+```
+
+**Note:** TOML arrays of tables (`[[...]]`) and inline arrays are both fully supported.
 
 ---
 
@@ -517,6 +560,7 @@ confBuilder.ConfigureConfigurationProvidersFromEnv()
 |------------|----------------------------------|
 | `json`     | JSONConfigurationProvider        |
 | `yaml`     | YamlConfigurationProvider        |
+| `toml`     | TomlConfigurationProvider        |
 | `env`      | EnvConfigurationProvider         |
 | `cmdline`  | CmdLineConfigurationProvider     |
 | `keyvault` | KeyVaultConfigurationProvider    |
