@@ -1,0 +1,10 @@
+{
+  "arr": {
+    "Strings": ["hello", "world"],
+    "Items": [
+      { "Name": "first",  "Value": 10 },
+      { "Name": "second", "Value": 20 }
+    ],
+    "Fixed": [10, 42, 30]
+  }
+}

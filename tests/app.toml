@@ -1,0 +1,69 @@
+[config]
+PropertyInt8 = 45
+
+[config.Obj1]
+PropertyString = "TestObj1"
+PropertyInt    = 1
+PropertyInt8   = 2
+PropertyInt16  = 3
+PropertyInt64  = 4
+PropertyFloat32 = 1.5
+PropertyFloat64 = 2.75
+PropertyBool   = true
+Time           = "2022-01-19T10:00:00Z"
+ArrayStr       = ["Test", "Test2"]
+ArrayInt       = [1, 2]
+
+[[config.Obj1.ArrayObj]]
+PropertyString = "TestArrObj1"
+PropertyInt    = 1
+PropertyBool   = true
+
+[[config.Obj1.ArrayObj]]
+PropertyString = "TestArrObj2"
+PropertyInt    = 2
+PropertyBool   = false
+
+[[config.Obj1.ArrayObjPtr]]
+PropertyString = "TestArrObj1"
+PropertyInt    = 1
+PropertyBool   = true
+
+[[config.Obj1.ArrayObjPtr]]
+PropertyString = "TestArrObj2"
+PropertyInt    = 2
+PropertyBool   = false
+
+[config.Obj1.MapStr]
+Key1 = "Value1"
+Key2 = "Value2"
+
+[config.Obj1.MapInt]
+1 = "1"
+2 = "2"
+
+[config.Obj1.MapObj.1]
+PropertyString = "TestArrObj1"
+PropertyInt    = 1
+PropertyBool   = true
+
+[config.Obj1.MapObj.2]
+PropertyString = "TestArrObj2"
+PropertyInt    = 2
+PropertyBool   = false
+
+[config.Obj1.MapObj.99]
+PropertyString = "MapObjStrYaml"
+PropertyInt    = 87
+PropertyBool   = true
+
+[config.Obj1.MapObjPtr]
+[config.Obj1.MapObjPtr.false]
+PropertyString = "TestArrObj1"
+PropertyInt    = 1
+PropertyBool   = true
+
+[config.Obj1.MapObjPtr.true]
+PropertyString = "TestArrObj2"
+PropertyInt    = 2
+PropertyBool   = false

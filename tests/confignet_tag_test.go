@@ -3,9 +3,6 @@ package tests
 import (
 	"testing"
 
-	confignet "github.com/maurik77/go-confignet"
-	"github.com/maurik77/go-confignet/extensions"
-	"github.com/maurik77/go-confignet/providers"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,11 +29,6 @@ type taggedDB struct {
 // Helpers
 // ---------------------------------------------------------------------------
 
-func buildEnvConf2() extensions.IConfiguration {
-	var b extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
-	b.Add(&providers.EnvConfigurationProvider{})
-	return b.Build()
-}
 
 // ---------------------------------------------------------------------------
 // Tests: basic tag mapping
@@ -48,7 +40,7 @@ func TestConfignetTag_ScalarFields(t *testing.T) {
 	t.Setenv("svc__debug", "true")
 	t.Setenv("svc__rate", "2.5")
 
-	conf := buildEnvConf2()
+	conf := buildEnvConf(t)
 	var cfg taggedConfig
 	err := conf.Bind("svc", &cfg)
 	assert.NoError(t, err)
@@ -63,7 +55,7 @@ func TestConfignetTag_NestedStruct(t *testing.T) {
 	t.Setenv("svc__database__name", "mydb")
 	t.Setenv("svc__database__connection_timeout", "30")
 
-	conf := buildEnvConf2()
+	conf := buildEnvConf(t)
 	var cfg taggedConfig
 	err := conf.Bind("svc", &cfg)
 	assert.NoError(t, err)
@@ -76,7 +68,7 @@ func TestConfignetTag_NoTag_FallsBackToFieldName(t *testing.T) {
 	// Tags and Items have no confignet tag — field name is used as-is
 	t.Setenv("svc__Items__0", "hello")
 
-	conf := buildEnvConf2()
+	conf := buildEnvConf(t)
 	var cfg taggedConfig
 	err := conf.Bind("svc", &cfg)
 	assert.NoError(t, err)
@@ -104,7 +96,7 @@ func TestConfignetTag_JSONProvider(t *testing.T) {
 func TestConfignetTag_BindStrict_TaggedKeyValid(t *testing.T) {
 	t.Setenv("svc__host", "localhost")
 
-	conf := buildEnvConf2()
+	conf := buildEnvConf(t)
 	var cfg taggedConfig
 
 	// "host" maps to Host via tag — BindStrict must not reject it

@@ -75,6 +75,9 @@ The meta-configuration system lets you list providers, their properties, and the
 **Come from an ASP.NET Core background.**
 The builder pattern, provider interface, and layered override model are directly inspired by `Microsoft.Extensions.Configuration`. The mental model transfers.
 
+**Want predictable, explicit key matching.**
+go-confignet is case-sensitive by design. `Database.Host` and `database.host` are distinct keys, exactly as they are in Go struct field names. Some libraries silently fold all keys to lowercase — a convenience that creates subtle bugs when two keys differ only by case, and unexpected behaviour when working with secrets or provider-specific naming conventions. go-confignet never normalises your keys behind your back.
+
 ---
 
 ## Quick Start
@@ -267,10 +270,12 @@ Host = "localhost"
 Port = 5432
 
 [[app.Items]]
-Name = "first"
+Name  = "first"
+Value = 10
 
 [[app.Items]]
-Name = "second"
+Name  = "second"
+Value = 20
 ```
 
 **Usage:**
@@ -278,6 +283,9 @@ Name = "second"
 ```go
 confBuilder.Add(&providers.TomlConfigurationProvider{FilePath: "config/app.toml"})
 ```
+
+**Note:** TOML arrays of tables (`[[...]]`) and inline arrays are both fully supported.
+
 
 ---
 
