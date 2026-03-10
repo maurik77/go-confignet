@@ -88,6 +88,8 @@ func (conf *Configuration) Bind(section string, target interface{}) error {
 		return &InvalidBindError{reflect.TypeOf(target)}
 	}
 
+	internal.ApplyDefaults(target)
+
 	for _, p := range conf.configurationProvidersInfo {
 		props := filterProperties(section, p)
 		conf.bindProps(p, props, target)
