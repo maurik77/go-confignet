@@ -23,9 +23,7 @@ func (provider *TomlConfigurationProvider) Load(decrypter extensions.IConfigurat
 	provider.data = make(map[string]string)
 
 	var payload map[string]interface{}
-	err := internal.UnmarshalFromFile(provider.FilePath, &payload, func(in []byte, out interface{}) error {
-		return toml.Unmarshal(in, out)
-	})
+	err := internal.UnmarshalFromFile(provider.FilePath, &payload, toml.Unmarshal)
 
 	if err != nil {
 		logger.Printf("TomlConfigurationProvider:Error during Unmarshal(): %v", err)

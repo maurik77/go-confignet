@@ -211,15 +211,11 @@ func TestMarshalToFile_RoundTrip(t *testing.T) {
 	src := marshalPayload{Name: "test", Value: 42}
 	path := filepath.Join(t.TempDir(), "output.json")
 
-	err := internal.MarshalToFile(path, src, func(v interface{}) ([]byte, error) {
-		return json.Marshal(v)
-	})
+	err := internal.MarshalToFile(path, src, json.Marshal)
 	assert.NoError(t, err)
 
 	var got marshalPayload
-	err = internal.UnmarshalFromFile(path, &got, func(in []byte, out interface{}) error {
-		return json.Unmarshal(in, out)
-	})
+	err = internal.UnmarshalFromFile(path, &got, json.Unmarshal)
 	assert.NoError(t, err)
 	assert.Equal(t, src.Name, got.Name)
 	assert.Equal(t, src.Value, got.Value)
@@ -306,7 +302,7 @@ func TestBinder_InvalidFloatValue(t *testing.T) {
 	cfg := myConfig{Obj1: &subObj{}}
 	err := conf.Bind("config", &cfg)
 	assert.NoError(t, err)
-	var expected float32 = 0
+	var expected float32
 	assert.Equal(t, expected, cfg.Obj1.PropertyFloat32)
 }
 
