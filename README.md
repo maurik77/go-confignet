@@ -18,6 +18,7 @@ Requires **Go 1.18** or later.
 - [Built-in Providers](#built-in-providers)
   - [JSON](#json)
   - [YAML](#yaml)
+  - [TOML](#toml)
   - [Environment Variables](#environment-variables)
   - [Command Line Arguments](#command-line-arguments)
   - [Azure Key Vault](#azure-key-vault)
@@ -238,6 +239,45 @@ app:
 ```go
 confBuilder.Add(&providers.YamlConfigurationProvider{FilePath: "config/app.yaml"})
 ```
+
+---
+
+### TOML
+
+Loads configuration from a TOML file. Separator: `.`
+
+```go
+type TomlConfigurationProvider struct {
+    FilePath string // default: "app.toml"
+}
+```
+
+**Example file:**
+
+```toml
+[app]
+PropertyInt8 = 45
+
+[app.Database]
+Host = "localhost"
+Port = 5432
+
+[[app.Items]]
+Name  = "first"
+Value = 10
+
+[[app.Items]]
+Name  = "second"
+Value = 20
+```
+
+**Usage:**
+
+```go
+confBuilder.Add(&providers.TomlConfigurationProvider{FilePath: "config/app.toml"})
+```
+
+**Note:** TOML arrays of tables (`[[...]]`) and inline arrays are both fully supported.
 
 ---
 
@@ -517,6 +557,7 @@ confBuilder.ConfigureConfigurationProvidersFromEnv()
 |------------|----------------------------------|
 | `json`     | JSONConfigurationProvider        |
 | `yaml`     | YamlConfigurationProvider        |
+| `toml`     | TomlConfigurationProvider        |
 | `env`      | EnvConfigurationProvider         |
 | `cmdline`  | CmdLineConfigurationProvider     |
 | `keyvault` | KeyVaultConfigurationProvider    |
