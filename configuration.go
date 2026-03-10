@@ -3,6 +3,7 @@ package confignet
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 	"sync"
 
@@ -91,6 +92,51 @@ func (conf *Configuration) Bind(section string, target interface{}) error {
 	for _, p := range conf.configurationProvidersInfo {
 		props := filterProperties(section, p)
 		conf.bindProps(p, props, target)
+	}
+
+	return nil
+}
+
+// BindStrict is like Bind but returns an error if any configuration key
+// in the matched section does not correspond to a field in the target struct.
+func BindStrict(section string, target interface{}) error {
+	initializeDefaultConfig()
+	return conf.BindStrict(section, target)
+}
+
+// BindStrict is like Bind but returns an error if any configuration key
+// in the matched section does not correspond to a field in the target struct.
+func (conf *Configuration) BindStrict(section string, target interface{}) error {
+	if err := conf.Bind(section, target); err != nil {
+		return err
+	}
+
+	t := reflect.TypeOf(target)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	seen := map[string]struct{}{}
+	var unknown []string
+
+	for _, p := range conf.configurationProvidersInfo {
+		props := filterProperties(section, p)
+		separator := p.Provider.GetSeparator()
+		for key := range props {
+			if _, done := seen[key]; done {
+				continue
+			}
+			seen[key] = struct{}{}
+			parts := strings.Split(key, separator)
+			if !internal.IsValidPath(t, parts) {
+				unknown = append(unknown, strings.Join(parts, "."))
+			}
+		}
+	}
+
+	if len(unknown) > 0 {
+		sort.Strings(unknown)
+		return fmt.Errorf("confignet: unknown configuration keys: %s", strings.Join(unknown, ", "))
 	}
 
 	return nil
