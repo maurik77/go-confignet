@@ -4,6 +4,7 @@ package extensions
 type IConfiguration interface {
 	GetProviders() []ConfigurationProviderInfo
 	Bind(section string, value interface{}) error
+	BindStrict(section string, value interface{}) error
 	GetValue(section string) string
 }
 

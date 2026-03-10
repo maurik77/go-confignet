@@ -1,0 +1,10 @@
+{
+  "providers": [
+    {
+      "name": "toml",
+      "properties": {
+        "filePath": "app.toml"
+      }
+    }
+  ]
+}

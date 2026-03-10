@@ -20,6 +20,12 @@ func loadProperties(parent string, separator string, valueMap map[string]interfa
 			data[key] = fmt.Sprint(value)
 		case []interface{}:
 			loadArray(key, separator, v, data)
+		case []map[string]interface{}:
+			slice := make([]interface{}, len(v))
+			for i, item := range v {
+				slice[i] = item
+			}
+			loadArray(key, separator, slice, data)
 		case map[string]interface{}:
 			loadProperties(key, separator, v, data)
 		}

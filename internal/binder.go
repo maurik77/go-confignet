@@ -20,10 +20,10 @@ func fillObject(parent reflect.Value, value string, parts ...string) {
 	}
 
 	fieldName := parts[0]
-	nestedField := parent.FieldByName(fieldName)
+	nestedField, ok := fieldByKey(parent, fieldName)
 
-	if !nestedField.IsValid() {
-		Logger.Printf("Configuration:Unable to find field %v in the object %v", fieldName, nestedField)
+	if !ok {
+		Logger.Printf("Configuration:Unable to find field %v in the object %v", fieldName, parent.Type())
 		return
 	}
 

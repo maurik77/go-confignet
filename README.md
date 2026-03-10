@@ -18,12 +18,17 @@ Requires **Go 1.18** or later.
 - [Built-in Providers](#built-in-providers)
   - [JSON](#json)
   - [YAML](#yaml)
+  - [TOML](#toml)
   - [Environment Variables](#environment-variables)
   - [Command Line Arguments](#command-line-arguments)
   - [Azure Key Vault](#azure-key-vault)
   - [Split Secrets (Shamir)](#split-secrets-shamir)
   - [AES Encryption](#aes-encryption)
 - [Meta-Configuration](#meta-configuration)
+- [Struct Tags](#struct-tags)
+  - [confignet tag — key mapping](#confignet-tag--key-mapping)
+  - [default tag — default values](#default-tag--default-values)
+- [Strict Binding](#strict-binding)
 - [Supported Field Types](#supported-field-types)
 - [Provider Override Order](#provider-override-order)
 - [Custom Providers](#custom-providers)
@@ -69,6 +74,9 @@ The meta-configuration system lets you list providers, their properties, and the
 
 **Come from an ASP.NET Core background.**
 The builder pattern, provider interface, and layered override model are directly inspired by `Microsoft.Extensions.Configuration`. The mental model transfers.
+
+**Want predictable, explicit key matching.**
+go-confignet is case-sensitive by design. `Database.Host` and `database.host` are distinct keys, exactly as they are in Go struct field names. Some libraries silently fold all keys to lowercase — a convenience that creates subtle bugs when two keys differ only by case, and unexpected behaviour when working with secrets or provider-specific naming conventions. go-confignet never normalises your keys behind your back.
 
 ---
 
@@ -121,7 +129,7 @@ Each provider uses its own natural key separator. `Bind` translates between them
 
 | Provider           | Separator | Example key                      |
 |--------------------|-----------|----------------------------------|
-| JSON / YAML        | `.`       | `app.Database.Host`              |
+| JSON / YAML / TOML | `.`       | `app.Database.Host`              |
 | Environment        | `__`      | `app__Database__Host`            |
 | Command line       | `-`       | `app-Database-Host`              |
 | Azure Key Vault    | `--`      | `app--Database--Host`            |
@@ -238,6 +246,46 @@ app:
 ```go
 confBuilder.Add(&providers.YamlConfigurationProvider{FilePath: "config/app.yaml"})
 ```
+
+---
+
+### TOML
+
+Loads configuration from a TOML file. Separator: `.`
+
+```go
+type TomlConfigurationProvider struct {
+    FilePath string // default: "app.toml"
+}
+```
+
+**Example file:**
+
+```toml
+[app]
+PropertyInt8 = 45
+
+[app.Database]
+Host = "localhost"
+Port = 5432
+
+[[app.Items]]
+Name  = "first"
+Value = 10
+
+[[app.Items]]
+Name  = "second"
+Value = 20
+```
+
+**Usage:**
+
+```go
+confBuilder.Add(&providers.TomlConfigurationProvider{FilePath: "config/app.toml"})
+```
+
+**Note:** TOML arrays of tables (`[[...]]`) and inline arrays are both fully supported.
+
 
 ---
 
@@ -517,6 +565,7 @@ confBuilder.ConfigureConfigurationProvidersFromEnv()
 |------------|----------------------------------|
 | `json`     | JSONConfigurationProvider        |
 | `yaml`     | YamlConfigurationProvider        |
+| `toml`     | TomlConfigurationProvider        |
 | `env`      | EnvConfigurationProvider         |
 | `cmdline`  | CmdLineConfigurationProvider     |
 | `keyvault` | KeyVaultConfigurationProvider    |
@@ -528,6 +577,111 @@ confBuilder.ConfigureConfigurationProvidersFromEnv()
 |----------|-------------------------------|
 | `aes`    | AesConfigurationDecrypter     |
 | `shamir` | ShamirConfigurationDecrypter  |
+
+---
+
+## Struct Tags
+
+### `confignet` tag — key mapping
+
+By default, the binder matches config keys to struct fields by field name. The `confignet` tag lets you declare a different key name, enabling natural naming conventions in config files (e.g. `snake_case`) while keeping idiomatic `PascalCase` in Go:
+
+```go
+type DatabaseConfig struct {
+    Host    string `confignet:"host"`
+    Port    int    `confignet:"port"`
+    Timeout int    `confignet:"connection_timeout"`
+    Name    string // no tag — matched by field name "Name"
+}
+```
+
+This works with every provider. A JSON file can use `host`, an env var can use `database__connection_timeout`, a Key Vault secret can use `database--connection-timeout` — all bind to the same struct fields.
+
+```json
+{
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "connection_timeout": 30
+  }
+}
+```
+
+```bash
+export database__connection_timeout=60
+```
+
+A per-type field index is cached after the first `Bind()` call, so there is no runtime cost on subsequent calls.
+
+---
+
+### `default` tag — default values
+
+Fields tagged with `default` receive that value when no provider supplies a value for that key. Provider values (including explicit zero) always override the default:
+
+```go
+type ServerConfig struct {
+    Host    string  `default:"localhost"`
+    Port    int     `default:"8080"`
+    Debug   bool    `default:"false"`
+    Timeout int     `default:"30"`
+}
+```
+
+```go
+var cfg ServerConfig
+conf.Bind("server", &cfg)
+// cfg.Host == "localhost"  (if no provider set it)
+// cfg.Port == 8080         (if no provider set it)
+```
+
+Defaults are applied before provider binding, so:
+
+```
+default tag  →  provider value (wins if present)  →  final value
+```
+
+Tags are supported on nested struct fields as well:
+
+```go
+type Config struct {
+    Server  ServerConfig
+    DB      DatabaseConfig
+}
+
+type DatabaseConfig struct {
+    Port    int    `confignet:"port" default:"5432"`
+    MaxConn int    `confignet:"max_connections" default:"10"`
+}
+```
+
+**Limitation**: default values are static strings. For dynamic defaults (e.g. computed at startup), add a lowest-priority in-memory provider before other providers.
+
+---
+
+## Strict Binding
+
+`BindStrict()` is a drop-in replacement for `Bind()` that returns an error if the configuration contains any key that does not correspond to a field in the target struct. This catches typos in config files and environment variables at startup:
+
+```go
+var cfg DatabaseConfig
+err := conf.BindStrict("database", &cfg)
+// err: "confignet: unknown configuration keys: connection_timout, hsot"
+```
+
+```go
+// These are equivalent when no unknown keys exist:
+conf.Bind("database", &cfg)
+conf.BindStrict("database", &cfg)
+```
+
+`BindStrict` is tag-aware — keys matching a `confignet` tag are correctly accepted. It also handles slices, arrays, and maps: numeric indices for slices and arbitrary keys for maps are never flagged as unknown.
+
+A package-level `BindStrict` function is also available (same as `Bind`):
+
+```go
+err := confignet.BindStrict("app", &cfg)
+```
 
 ---
 
