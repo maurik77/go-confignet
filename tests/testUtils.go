@@ -4,7 +4,17 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	confignet "github.com/maurik77/go-confignet"
+	"github.com/maurik77/go-confignet/extensions"
+	"github.com/maurik77/go-confignet/providers"
 )
+
+func buildJSONConf(filePath string) extensions.IConfiguration {
+	var b extensions.IConfigurationBuilder = &confignet.ConfigurationBuilder{}
+	b.Add(&providers.JSONConfigurationProvider{FilePath: filePath})
+	return b.Build()
+}
 
 type myConfig struct {
 	Obj1         *subObj
